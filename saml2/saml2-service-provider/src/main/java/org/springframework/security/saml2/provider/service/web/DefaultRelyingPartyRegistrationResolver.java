@@ -86,9 +86,14 @@ public final class DefaultRelyingPartyRegistrationResolver
 		String relyingPartyEntityId = templateResolver.apply(relyingPartyRegistration.getEntityId());
 		String assertionConsumerServiceLocation = templateResolver
 				.apply(relyingPartyRegistration.getAssertionConsumerServiceLocation());
+		String singleLogoutServiceLocation = templateResolver
+				.apply(relyingPartyRegistration.getSingleLogoutServiceLocation());
+		String singleLogoutServiceResponseLocation = templateResolver
+				.apply(relyingPartyRegistration.getSingleLogoutServiceResponseLocation());
 		return RelyingPartyRegistration.withRelyingPartyRegistration(relyingPartyRegistration)
 				.entityId(relyingPartyEntityId).assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.build();
+				.singleLogoutServiceLocation(singleLogoutServiceLocation)
+				.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation).build();
 	}
 
 	private Function<String, String> templateResolver(String applicationUri, RelyingPartyRegistration relyingParty) {
