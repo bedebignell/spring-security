@@ -27,6 +27,21 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 dependencyManagementExport.projects = subprojects.findAll { !it.name.contains('-boot') }
 
+task prepareStructure101(type: Exec) {
+	workingDir "$projectDir"
+	commandLine 'sh', 'scripts/structure101.sh'
+}
+
+sonarqube {
+	properties {
+		property "structure101.java.disabled", "false"
+		property "structure101.java.modulesEnabled", "false"
+		property "structure101.java.license", "$rootDir"
+	}
+}
+
+project.tasks["sonarqube"].dependsOn "prepareStructure101"
+
 repositories {
 	mavenCentral()
 }
