@@ -22,9 +22,12 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Mount;
 import com.github.dockerjava.api.model.MountType;
@@ -72,14 +75,25 @@ public class S101Build extends DefaultTask {
 				.withEntrypoint("sh", "-c", "java -Ds101.label=baseline -jar /opt/structure101/structure101-java-build.jar /etc/structure101/build/s101/config.xml")
 				.exec();
 		dockerClient.startContainerCmd(created.getId()).exec();
-		boolean finished = false;
-		while (!finished) {
-			finished = dockerClient.listContainersCmd()
-					.withStatusFilter(Arrays.asList("exited"))
-					.withIdFilter(Arrays.asList(created.getId())).exec()
-					.size() > 0;
+		ResultCallback.Adapter<Frame> logs = dockerClient.logContainerCmd(created.getId())
+				.withStdOut(true)
+				.withStdErr(true)
+				.withFollowStream(true)
+				.withTailAll()
+				.exec(new ResultCallback.Adapter<Frame>() {
+					@Override
+					public void onNext(Frame item) {
+						S101Build.this.getLogger().info(item.toString());
+					}
+				});
+		try {
+			logs.awaitCompletion(2, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		} finally {
+			dockerClient.startContainerCmd(created.getId()).exec();
+			dockerClient.removeContainerCmd(created.getId()).exec();
 		}
-		dockerClient.removeContainerCmd(created.getId()).exec();
 	}
 
 	private void copyToBuildDirectory(String templateLocation, File destination) {
