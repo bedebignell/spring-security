@@ -15,6 +15,7 @@ buildscript {
 
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
+apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
@@ -27,11 +28,6 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 dependencyManagementExport.projects = subprojects.findAll { !it.name.contains('-boot') }
 
-task prepareStructure101(type: Exec) {
-	workingDir "$projectDir"
-	commandLine 'sh', 'scripts/structure101.sh'
-}
-
 sonarqube {
 	properties {
 		property "structure101.java.disabled", "false"
@@ -40,7 +36,7 @@ sonarqube {
 	}
 }
 
-project.tasks["sonarqube"].dependsOn "prepareStructure101"
+project.tasks["sonarqube"].dependsOn "s101"
 
 repositories {
 	mavenCentral()
