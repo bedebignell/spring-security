@@ -39,16 +39,15 @@ import static org.mockito.BDDMockito.when;
 import static org.mockito.BDDMockito.willReturn;
 
 /**
- * Tests for {@link Saml2AssertingPartyInitiatedLogoutSuccessHandler}
+ * Tests for {@link Saml2ResponseLogoutSuccessHandler}
  *
  * @author Josh Cummings
  */
-public class Saml2AssertingPartyInitiatedLogoutSuccessHandlerTests {
+public class Saml2ResponseLogoutSuccessHandlerTests {
 
 	private final Saml2LogoutResponseResolver resolver = mock(Saml2LogoutResponseResolver.class);
 
-	private final Saml2AssertingPartyInitiatedLogoutSuccessHandler handler = new Saml2AssertingPartyInitiatedLogoutSuccessHandler(
-			this.resolver);
+	private final Saml2ResponseLogoutSuccessHandler handler = new Saml2ResponseLogoutSuccessHandler(this.resolver);
 
 	@Test
 	public void doFilterWhenRedirectThenRedirectsToAssertingParty() throws Exception {

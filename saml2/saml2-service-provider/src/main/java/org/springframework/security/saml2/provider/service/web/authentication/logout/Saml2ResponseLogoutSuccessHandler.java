@@ -43,18 +43,18 @@ import org.springframework.web.util.UriUtils;
  * @author Josh Cummings
  * @since 5.5
  */
-public final class Saml2AssertingPartyInitiatedLogoutSuccessHandler implements LogoutSuccessHandler {
+public final class Saml2ResponseLogoutSuccessHandler implements LogoutSuccessHandler {
 
 	private final Saml2LogoutResponseResolver logoutResponseResolver;
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
-	 * Constructs a {@link Saml2AssertingPartyInitiatedLogoutSuccessHandler} using the
-	 * provided parameters
+	 * Constructs a {@link Saml2ResponseLogoutSuccessHandler} using the provided
+	 * parameters
 	 * @param logoutResponseResolver the {@link Saml2LogoutResponseResolver} to use
 	 */
-	public Saml2AssertingPartyInitiatedLogoutSuccessHandler(Saml2LogoutResponseResolver logoutResponseResolver) {
+	public Saml2ResponseLogoutSuccessHandler(Saml2LogoutResponseResolver logoutResponseResolver) {
 		this.logoutResponseResolver = logoutResponseResolver;
 	}
 

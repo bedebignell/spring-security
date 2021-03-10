@@ -50,7 +50,7 @@ import org.springframework.web.util.UriUtils;
  * @author Josh Cummings
  * @since 5.5
  */
-public final class Saml2RelyingPartyInitiatedLogoutFilter extends OncePerRequestFilter {
+public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 
 	private RequestMatcher logoutRequestMatcher = new AntPathRequestMatcher("/saml2/logout", "POST");
 
@@ -59,11 +59,10 @@ public final class Saml2RelyingPartyInitiatedLogoutFilter extends OncePerRequest
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
-	 * Constructs a {@link Saml2RelyingPartyInitiatedLogoutFilter} with the provided
-	 * parameters
+	 * Constructs a {@link Saml2LogoutRequestFilter} with the provided parameters
 	 * @param logoutRequestResolver the {@link Saml2LogoutRequestResolver} to use
 	 */
-	public Saml2RelyingPartyInitiatedLogoutFilter(Saml2LogoutRequestResolver logoutRequestResolver) {
+	public Saml2LogoutRequestFilter(Saml2LogoutRequestResolver logoutRequestResolver) {
 		Assert.notNull(logoutRequestResolver, "logoutRequestResolver cannot be null");
 		this.logoutRequestResolver = logoutRequestResolver;
 	}
