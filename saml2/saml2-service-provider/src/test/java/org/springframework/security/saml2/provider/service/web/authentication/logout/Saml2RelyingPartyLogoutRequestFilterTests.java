@@ -42,15 +42,16 @@ import static org.mockito.BDDMockito.when;
 import static org.mockito.BDDMockito.willReturn;
 
 /**
- * Tests for {@link Saml2LogoutRequestFilter}
+ * Tests for {@link Saml2RelyingPartyLogoutRequestFilter}
  *
  * @author Josh Cummings
  */
-public class Saml2LogoutRequestFilterTests {
+public class Saml2RelyingPartyLogoutRequestFilterTests {
 
 	private final Saml2LogoutRequestResolver resolver = mock(Saml2LogoutRequestResolver.class);
 
-	private final Saml2LogoutRequestFilter handler = new Saml2LogoutRequestFilter(this.resolver);
+	private final Saml2RelyingPartyLogoutRequestFilter handler = new Saml2RelyingPartyLogoutRequestFilter(
+			this.resolver);
 
 	@After
 	public void tearDown() {

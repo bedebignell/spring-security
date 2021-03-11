@@ -34,13 +34,14 @@ import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.verifyNoInteractions;
 
-public class Saml2LogoutFilterTests {
+public class Saml2AssertingPartyLogoutResponseFilterTests {
 
 	private final LogoutHandler handler = mock(LogoutHandler.class);
 
 	private final LogoutSuccessHandler successHandler = mock(LogoutSuccessHandler.class);
 
-	private final Saml2LogoutFilter filter = new Saml2LogoutFilter(this.successHandler, this.handler);
+	private final Saml2AssertingPartyLogoutResponseFilter filter = new Saml2AssertingPartyLogoutResponseFilter(
+			this.successHandler, this.handler);
 
 	@After
 	public void tearDown() {
@@ -53,7 +54,7 @@ public class Saml2LogoutFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2");
 		request.setServletPath("/logout/saml2");
-		request.setParameter("SAMLRequest", "request");
+		request.setParameter("SAMLResponse", "response");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.filter.doFilterInternal(request, response, new MockFilterChain());
 		verify(this.handler).logout(request, response, authentication);
@@ -79,7 +80,7 @@ public class Saml2LogoutFilterTests {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout");
 		request.setServletPath("/logout");
-		request.setParameter("SAMLRequest", "request");
+		request.setParameter("SAMLResponse", "response");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.filter.doFilterInternal(request, response, new MockFilterChain());
 		verifyNoInteractions(this.handler);
@@ -90,7 +91,7 @@ public class Saml2LogoutFilterTests {
 	public void doFilterWhenUnauthenticatedThenNoLogout() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2");
 		request.setServletPath("/logout/saml2");
-		request.setParameter("SAMLResponse", "request");
+		request.setParameter("SAMLResponse", "response");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.filter.doFilterInternal(request, response, new MockFilterChain());
 		verifyNoInteractions(this.handler);

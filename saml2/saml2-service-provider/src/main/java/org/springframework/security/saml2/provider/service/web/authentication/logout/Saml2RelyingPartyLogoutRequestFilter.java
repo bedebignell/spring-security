@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,101 +19,114 @@ package org.springframework.security.saml2.provider.service.web.authentication.l
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver.Saml2LogoutResponsePartial;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver.Saml2LogoutRequestPartial;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
 /**
- * A success handler for issuing a SAML 2.0 Logout Response in response to the SAML 2.0
- * Logout Request that the SAML 2.0 Asserting Party sent
+ * A filter for initiating logout with a SAML 2.0 Asserting Party.
+ *
+ * Note that logout does not complete until the application receives a SAML 2.0 Logout
+ * Response from the asserting party.
  *
  * @author Josh Cummings
  * @since 5.5
  */
-public final class Saml2ResponseLogoutSuccessHandler implements LogoutSuccessHandler {
+public final class Saml2RelyingPartyLogoutRequestFilter extends OncePerRequestFilter {
 
-	private final Saml2LogoutResponseResolver logoutResponseResolver;
+	private RequestMatcher logoutRequestMatcher = new AntPathRequestMatcher("/saml2/logout", "POST");
+
+	private final Saml2LogoutRequestResolver logoutRequestResolver;
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
-	 * Constructs a {@link Saml2ResponseLogoutSuccessHandler} using the provided
+	 * Constructs a {@link Saml2RelyingPartyLogoutRequestFilter} with the provided
 	 * parameters
-	 * @param logoutResponseResolver the {@link Saml2LogoutResponseResolver} to use
+	 * @param logoutRequestResolver the {@link Saml2LogoutRequestResolver} to use
 	 */
-	public Saml2ResponseLogoutSuccessHandler(Saml2LogoutResponseResolver logoutResponseResolver) {
-		this.logoutResponseResolver = logoutResponseResolver;
+	public Saml2RelyingPartyLogoutRequestFilter(Saml2LogoutRequestResolver logoutRequestResolver) {
+		Assert.notNull(logoutRequestResolver, "logoutRequestResolver cannot be null");
+		this.logoutRequestResolver = logoutRequestResolver;
 	}
 
 	/**
-	 * Produce and send a SAML 2.0 Logout Response based on the SAML 2.0 Logout Request
-	 * received from the asserting party
-	 * @param request the HTTP request
-	 * @param response the HTTP response
-	 * @param authentication the current principal details
-	 * @throws IOException when failing to write to the response
+	 * {@inheritDoc}
 	 */
 	@Override
-	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-			throws IOException {
-		String logoutRequestId = (String) request.getAttribute(Saml2RequestAttributeNames.LOGOUT_REQUEST_ID);
-		if (logoutRequestId == null) {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws ServletException, IOException {
+		if (!this.logoutRequestMatcher.matches(request)) {
+			chain.doFilter(request, response);
 			return;
 		}
-		Saml2LogoutResponsePartial<?> partial = this.logoutResponseResolver.resolveLogoutResponse(request,
-				authentication);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null) {
+			chain.doFilter(request, response);
+			return;
+		}
+		Saml2LogoutRequestPartial<?> partial = this.logoutRequestResolver.resolveLogoutRequest(request, authentication);
 		if (partial == null) {
+			chain.doFilter(request, response);
 			return;
 		}
-		Saml2LogoutResponse logoutResponse = partial.inResponseTo(logoutRequestId).logoutResponse();
-		if (logoutResponse.getBinding() == Saml2MessageBinding.REDIRECT) {
-			doRedirect(request, response, logoutResponse);
+		Saml2LogoutRequest logoutRequest = partial.logoutRequest();
+		Saml2MessageBinding binding = logoutRequest.getBinding();
+		// redirect to asserting party
+		if (binding == Saml2MessageBinding.REDIRECT) {
+			doRedirect(request, response, logoutRequest);
 		}
 		else {
-			doPost(response, logoutResponse);
+			doPost(response, logoutRequest);
 		}
+
 	}
 
-	private void doRedirect(HttpServletRequest request, HttpServletResponse response,
-			Saml2LogoutResponse logoutResponse) throws IOException {
-		String location = logoutResponse.getResponseLocation();
+	private void doRedirect(HttpServletRequest request, HttpServletResponse response, Saml2LogoutRequest logoutRequest)
+			throws IOException {
+		String location = logoutRequest.getLocation();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
-		addParameter("SAMLRequest", logoutResponse, uriBuilder);
-		addParameter("SigAlg", logoutResponse, uriBuilder);
-		addParameter("Signature", logoutResponse, uriBuilder);
+		addParameter("SAMLRequest", logoutRequest, uriBuilder);
+		addParameter("SigAlg", logoutRequest, uriBuilder);
+		addParameter("Signature", logoutRequest, uriBuilder);
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 
-	private void addParameter(String name, Saml2LogoutResponse logoutResponse, UriComponentsBuilder builder) {
+	private void addParameter(String name, Saml2LogoutRequest logoutRequest, UriComponentsBuilder builder) {
 		Assert.hasText(name, "name cannot be empty or null");
-		if (StringUtils.hasText(logoutResponse.getParameter(name))) {
+		if (StringUtils.hasText(logoutRequest.getParameter(name))) {
 			builder.queryParam(UriUtils.encode(name, StandardCharsets.ISO_8859_1),
-					UriUtils.encode(logoutResponse.getParameter(name), StandardCharsets.ISO_8859_1));
+					UriUtils.encode(logoutRequest.getParameter(name), StandardCharsets.ISO_8859_1));
 		}
 	}
 
-	private void doPost(HttpServletResponse response, Saml2LogoutResponse logoutResponse) throws IOException {
-		String html = createSamlPostRequestFormData(logoutResponse);
+	private void doPost(HttpServletResponse response, Saml2LogoutRequest logoutRequest) throws IOException {
+		String html = createSamlPostRequestFormData(logoutRequest);
 		response.setContentType(MediaType.TEXT_HTML_VALUE);
 		response.getWriter().write(html);
 	}
 
-	private String createSamlPostRequestFormData(Saml2LogoutResponse logoutResponse) {
-		String location = logoutResponse.getResponseLocation();
-		String samlRequest = logoutResponse.getSamlResponse();
+	private String createSamlPostRequestFormData(Saml2LogoutRequest logoutRequest) {
+		String location = logoutRequest.getLocation();
+		String samlRequest = logoutRequest.getSamlRequest();
 		StringBuilder html = new StringBuilder();
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");

@@ -1095,7 +1095,7 @@ SecurityFilterChain web(HttpSecurity http, RelyingPartyRegistrationRepository re
             .anyRequest().authenticated()
         )
         .saml2Login(withDefaults())
-        .addFilterBefore(new Saml2LogoutFilter(successHandler, logoutHandler), CsrfFilter.class)
+        .addFilterBefore(new Saml2AssertingPartyLogoutResponseFilter(successHandler, logoutHandler), CsrfFilter.class)
         .addFilterBefore(logoutRequestFilter(registrationResolver), LogoutFilter.class);
 
     return http.build();
@@ -1106,7 +1106,7 @@ private Filter logoutRequestFilter(RelyingPartyRegistrationResolver registration
     Saml2LogoutRequestResolver logoutRequestResolver = (request, authentication) ->
             delegate.resolveLogoutRequest(request, authentication)
                     .logoutRequest((logoutRequest) -> logoutRequest.setIssueInstant(DateTime.now()));
-    return new Saml2LogoutRequestFilter(logoutRequestResolver);
+    return new Saml2RelyingPartyLogoutRequestFilter(logoutRequestResolver);
 }
 
 private LogoutHandler logoutHandler(RelyingPartyRegistrationResolver registrationResolver) { <3>
@@ -1163,7 +1163,7 @@ SecurityFilterChain web(HttpSecurity http, RelyingPartyRegistrationRepository re
             .anyRequest().authenticated()
         )
         .saml2Login(withDefaults())
-        .addFilterBefore(new Saml2LogoutFilter(successHandler, logoutHandler), CsrfFilter.class);
+        .addFilterBefore(new Saml2AssertingPartyLogoutRequestFilter(successHandler, logoutHandler), CsrfFilter.class);
 
     return http.build();
 }
@@ -1180,7 +1180,7 @@ private LogoutSuccessHandler logoutSuccessHandler(RelyingPartyRegistrationResolv
     Saml2LogoutResponsetResolver logoutResponseResolver = (request, authentication) ->
             delegate.resolveLogoutResponse(request, authentication)
                     .logoutResponse((logoutResponse) -> logoutResponse.setIssueInstant(DateTime.now()));
-    return new Saml2ResponseLogoutSuccessHandler(logoutResponseResolver);
+    return new Saml2RelyingPartyLogoutResponseSuccessHandler(logoutResponseResolver);
 }
 ----
 <1> - First, add your signing key to the `RelyingPartyRegistration` instance or to <<servlet-saml2login-rpr-duplicated,multiple instances>>
@@ -1205,9 +1205,9 @@ In the event that you need to support both logout flows, you can combine the abo
 
 === Configuring Logout Endpoints
 
-There are two default endpoints that Spring Security's SAML 2.0 Single Logout support exposes:
+There are three default endpoints that Spring Security's SAML 2.0 Single Logout support exposes:
 * `/saml2/logout` - the endpoint for initiating single logout with an asserting party
-* `/logout/saml2` - the endpoint for receiving logout requests and responses from an asserting party
+* `/logout/saml2` - the endpoint for receiving logout requests or responses from an asserting party
 
 Because the user is already logged in, the `registrationId` is already known.
 For this reason, `+{registrationId}+` is not part of these URLs by default.
@@ -1215,14 +1215,14 @@ For this reason, `+{registrationId}+` is not part of these URLs by default.
 The first URL is not customizable at this point since this is not a URL that gets configured with the asserting party.
 As such the need to customize this endpoint is minimal, though this can be added to the support down the road.
 
-The second URL is customizable in the `Saml2LogoutFilter`.
+The other URLs is customizable in `Saml2AssertingPartyLogoutRequestFilter` and `Saml2AssertingPartyLogoutResponseFilter`.
 
 For example, if you are migrating your existing relying party over to Spring Security, your asserting party may already be pointing to `GET /SLOService.saml2`.
-To reduce changes in configuration for the asserting party, you can configure `logout` in the DSL like so:
+To reduce changes in configuration for the asserting party, you can configure the filter in the DSL like so:
 
 [source,java]
 ----
-Saml2LogoutFilter filter = new Saml2LogoutFilter(logoutSuccessHandler, logoutHandler);
+Saml2AssertingPartyLogoutResponseFilter filter = new Saml2AssertingPartyLogoutResponseFilter(logoutSuccessHandler, logoutHandler);
 filter.setLogoutRequestMatcher(new AntPathRequestMatcher("/SLOService.saml2", "GET"));
 http
     // ...

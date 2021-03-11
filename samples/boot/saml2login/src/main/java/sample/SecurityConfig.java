@@ -41,11 +41,11 @@ import org.springframework.security.saml2.provider.service.web.authentication.lo
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutResponseHandler;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutResponseResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutFilter;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2AssertingPartyLogoutResponseFilter;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyLogoutRequestFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2ResponseLogoutSuccessHandler;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyLogoutResponseSuccessHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -81,7 +81,7 @@ public class SecurityConfig {
 				.anyRequest().authenticated()
 			)
 			.saml2Login(withDefaults())
-			.addFilterBefore(new Saml2LogoutFilter(logoutSuccessHandler, logoutHandler), CsrfFilter.class)
+			.addFilterBefore(new Saml2AssertingPartyLogoutResponseFilter(logoutSuccessHandler, logoutHandler), CsrfFilter.class)
 			.addFilterBefore(logoutRequestFilter, LogoutFilter.class);
 
 		return http.build();
@@ -101,7 +101,7 @@ public class SecurityConfig {
 				delegate.resolveLogoutResponse(request, authentication)
 						.logoutResponse((logoutResponse) -> logoutResponse.setIssueInstant(DateTime.now()));
 		LogoutSuccessHandler redirect = new SimpleUrlLogoutSuccessHandler();
-		LogoutSuccessHandler successHandler = new Saml2ResponseLogoutSuccessHandler(responseResolver);
+		LogoutSuccessHandler successHandler = new Saml2RelyingPartyLogoutResponseSuccessHandler(responseResolver);
 		return (request, response, authentication) -> {
 			successHandler.onLogoutSuccess(request, response, authentication);
 			redirect.onLogoutSuccess(request, response, authentication);
@@ -113,7 +113,7 @@ public class SecurityConfig {
 		Saml2LogoutRequestResolver requestResolver = (request, authentication) ->
 				delegate.resolveLogoutRequest(request, authentication)
 						.logoutRequest((logoutRequest) -> logoutRequest.setIssueInstant(DateTime.now()));
-		return new Saml2LogoutRequestFilter(requestResolver);
+		return new Saml2RelyingPartyLogoutRequestFilter(requestResolver);
 	}
 
 	@Bean

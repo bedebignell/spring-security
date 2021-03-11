@@ -93,9 +93,7 @@ public final class OpenSamlLogoutRequestHandler implements LogoutHandler {
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		String serialized = request.getParameter("SAMLRequest");
-		if (serialized == null) {
-			return;
-		}
+		Assert.notNull(serialized, "SAMLRequest cannot be null");
 		Assert.isTrue(authentication instanceof Saml2Authentication,
 				"authentication must be of type Saml2Authentication");
 		Saml2Authentication saml2Authentication = (Saml2Authentication) authentication;

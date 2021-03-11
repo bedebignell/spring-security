@@ -40,7 +40,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Josh Cummings
  * @since 5.5
  */
-public class Saml2LogoutFilter extends OncePerRequestFilter {
+public class Saml2AssertingPartyLogoutRequestFilter extends OncePerRequestFilter {
 
 	private static final String DEFAULT_LOGOUT_ENDPOINT = "/logout/saml2";
 
@@ -50,7 +50,8 @@ public class Saml2LogoutFilter extends OncePerRequestFilter {
 
 	private final LogoutSuccessHandler logoutSuccessHandler;
 
-	public Saml2LogoutFilter(LogoutSuccessHandler logoutSuccessHandler, LogoutHandler... logoutHandler) {
+	public Saml2AssertingPartyLogoutRequestFilter(LogoutSuccessHandler logoutSuccessHandler,
+			LogoutHandler... logoutHandler) {
 		this.logoutSuccessHandler = logoutSuccessHandler;
 		this.logoutHandler = new CompositeLogoutHandler(logoutHandler);
 	}
@@ -64,7 +65,7 @@ public class Saml2LogoutFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		if (!hasSamlRequestOrResponse(request)) {
+		if (request.getParameter("SAMLRequest") == null) {
 			chain.doFilter(request, response);
 			return;
 		}
@@ -82,10 +83,6 @@ public class Saml2LogoutFilter extends OncePerRequestFilter {
 	public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
 		Assert.notNull(logoutRequestMatcher, "logoutRequestMatcher cannot be null");
 		this.logoutRequestMatcher = logoutRequestMatcher;
-	}
-
-	private boolean hasSamlRequestOrResponse(HttpServletRequest request) {
-		return request.getParameter("SAMLRequest") != null || request.getParameter("SAMLResponse") != null;
 	}
 
 }
