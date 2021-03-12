@@ -49,6 +49,17 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 
 	private final LogoutSuccessHandler logoutSuccessHandler;
 
+	/**
+	 * Constructs a {@link Saml2LogoutResponseFilter} for accepting SAML 2.0 Logout
+	 * Requests from the asserting party
+	 * @param logoutSuccessHandler the success handler to be run after the logout request
+	 * passes validation and other logout operations succeed. This success handler will
+	 * typically be one that issues a SAML 2.0 Logout Response to the asserting party,
+	 * like {@link Saml2LogoutResponseSuccessHandler}
+	 * @param logoutHandler the handler for handling the logout request, may be a
+	 * {@link org.springframework.security.web.authentication.logout.CompositeLogoutHandler}
+	 * that handles other logout concerns
+	 */
 	public Saml2LogoutRequestFilter(LogoutSuccessHandler logoutSuccessHandler, LogoutHandler logoutHandler) {
 		this.logoutSuccessHandler = logoutSuccessHandler;
 		this.logoutHandler = logoutHandler;

@@ -1243,13 +1243,13 @@ To add other values, you can use delegation, like so:
 ----
 OpenSamlLogoutRequestResolver delegate = new OpenSamlLogoutRequestResolver(registrationResolver);
 return (request, response, authentication) -> {
-	OpenSamlLogoutRequestPartial partial = delegate.resolveLogoutRequest(request, response, authentication); <1>
-	partial.name(((Saml2AuthenticatedPrincipal) authentication.getPrincipal()).getFirstAttribute("CustomAttribute")); <2>
-	partial.logoutRequest((logoutRequest) -> logoutRequest.setIssueInstant(DateTime.now()));
-	return partial.logoutRequest(); <3>
+	OpenSamlLogoutRequestBuilder builder = delegate.resolveLogoutRequest(request, response, authentication); <1>
+	builder.name(((Saml2AuthenticatedPrincipal) authentication.getPrincipal()).getFirstAttribute("CustomAttribute")); <2>
+	builder.logoutRequest((logoutRequest) -> logoutRequest.setIssueInstant(DateTime.now()));
+	return builder.logoutRequest(); <3>
 };
 ----
-<1> - Spring Security partially applies the values to a `<saml2:LogoutRequest>`
+<1> - Spring Security applies default values to a `<saml2:LogoutRequest>`
 <2> - Your application specifies customizations
 <3> - You complete the invocation by calling `request()`
 
@@ -1275,15 +1275,15 @@ To add other values, you can use delegation, like so:
 ----
 OpenSamlLogoutResponseResolver delegate = new OpenSamlLogoutResponseResolver(registrationResolver);
 return (request, response, authentication) -> {
-	OpenSamlLogoutResponsePartial partial = delegate.resolveLogoutResponse(request, response, authentication); <1>
+	OpenSamlLogoutResponseBuilder builder = delegate.resolveLogoutResponse(request, response, authentication); <1>
     if (checkOtherPrevailingConditions()) {
-        partial.status(StatusCode.PARTIAL_LOGOUT); <2>
+        builder.status(StatusCode.PARTIAL_LOGOUT); <2>
     }
-	partial.logoutResponse((logoutResponse) -> logoutResponse.setIssueInstant(DateTime.now()));
-	return partial.logoutResponse(); <3>
+	builder.logoutResponse((logoutResponse) -> logoutResponse.setIssueInstant(DateTime.now()));
+	return builder.logoutResponse(); <3>
 };
 ----
-<1> - Spring Security partially applies the values to a `<saml2:LogoutResponse>`
+<1> - Spring Security applies default values to a `<saml2:LogoutResponse>`
 <2> - Your application specifies customizations
 <3> - You complete the invocation by calling `response()`
 
