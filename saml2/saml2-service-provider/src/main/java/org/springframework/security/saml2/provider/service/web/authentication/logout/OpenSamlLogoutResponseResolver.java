@@ -49,18 +49,43 @@ import org.springframework.security.saml2.provider.service.web.authentication.lo
 import org.springframework.util.Assert;
 
 /**
- * We want to generate a logout response
+ * A {@link Saml2LogoutRequestResolver} for resolving SAML 2.0 Logout Responses with
+ * OpenSAML
+ *
+ * @author Josh Cummings
+ * @since 5.5
  */
 public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponseResolver {
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
+	/**
+	 * Construct a {@link OpenSamlLogoutResponseResolver} using the provided parameters
+	 * @param relyingPartyRegistrationResolver the
+	 * {@link RelyingPartyRegistrationResolver} for selecting the
+	 * {@link RelyingPartyRegistration}
+	 */
 	public OpenSamlLogoutResponseResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 	}
 
+	/**
+	 * Prepare to create, sign, and serialize a SAML 2.0 Logout Response.
+	 *
+	 * By default, includes a {@code RelayState} based on the {@link HttpServletRequest}
+	 * as well as the {@code Destination} and {@code Issuer} based on the
+	 * {@link RelyingPartyRegistration} derived from the {@link Authentication}. The
+	 * logout response is also marked as {@code SUCCESS}.
+	 *
+	 * The {@link Authentication} must be of type {@link Saml2Authentication} in order to
+	 * look up the {@link RelyingPartyRegistration} that holds the signing key.
+	 * @param request the HTTP request
+	 * @param authentication the current principal details
+	 * @return a builder, useful for overriding any aspects of the SAML 2.0 Logout Request
+	 * that the resolver supplied
+	 */
 	@Override
-	public OpenSamlLogoutResponsePartial resolveLogoutResponse(HttpServletRequest request,
+	public OpenSamlLogoutResponseBuilder resolveLogoutResponse(HttpServletRequest request,
 			Authentication authentication) {
 		Assert.isTrue(authentication instanceof Saml2Authentication,
 				"authentication must be of type Saml2Authentication");
@@ -70,24 +95,28 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 		if (registration == null) {
 			return null;
 		}
-		return new OpenSamlLogoutResponsePartial(registration)
+		return new OpenSamlLogoutResponseBuilder(registration)
 				.destination(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation())
 				.issuer(registration.getEntityId()).status(StatusCode.SUCCESS)
 				.relayState(request.getParameter("RelayState"));
 	}
 
 	/**
-	 * A partial application, useful for overriding any aspects of the SAML 2.0 Logout
-	 * Response that the resolver supplied.
+	 * A builder, useful for overriding any aspects of the SAML 2.0 Logout Response that
+	 * the resolver supplied.
 	 *
 	 * The request returned from the {@link #logoutResponse()} method is signed and
-	 * serialized.
+	 * serialized. It will at minimum include an {@code ID}, though note that callers
+	 * should include an {@code InResponseTo} and {@code IssueInstant}. For your
+	 * convenience, {@link OpenSamlLogoutResponseResolver} also sets some default values.
 	 *
-	 * This partial is specifically handy for getting access to the underlying
+	 * This builder is specifically handy for getting access to the underlying
 	 * {@link LogoutResponse} to make changes before it gets signed and serialized
+	 *
+	 * @see OpenSamlLogoutResponseResolver#resolveLogoutResponse
 	 */
-	public static final class OpenSamlLogoutResponsePartial
-			implements Saml2LogoutResponsePartial<OpenSamlLogoutResponsePartial> {
+	public static final class OpenSamlLogoutResponseBuilder
+			implements Saml2LogoutResponseBuilder<OpenSamlLogoutResponseBuilder> {
 
 		static {
 			OpenSamlInitializationService.initialize();
@@ -110,10 +139,10 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 		private String relayState;
 
 		/**
-		 * Construct a {@link OpenSamlLogoutResponsePartial} using the provided parameters
+		 * Construct a {@link OpenSamlLogoutResponseBuilder} using the provided parameters
 		 * @param registration the {@link RelyingPartyRegistration} to use
 		 */
-		public OpenSamlLogoutResponsePartial(RelyingPartyRegistration registration) {
+		public OpenSamlLogoutResponseBuilder(RelyingPartyRegistration registration) {
 			Assert.notNull(registration, "registration cannot be null");
 			this.registration = registration;
 			XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
@@ -137,7 +166,7 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 		 * {@inheritDoc}
 		 */
 		@Override
-		public OpenSamlLogoutResponsePartial inResponseTo(String inResponseTo) {
+		public OpenSamlLogoutResponseBuilder inResponseTo(String inResponseTo) {
 			this.logoutResponse.setInResponseTo(inResponseTo);
 			return this;
 		}
@@ -146,7 +175,7 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 		 * {@inheritDoc}
 		 */
 		@Override
-		public OpenSamlLogoutResponsePartial status(String status) {
+		public OpenSamlLogoutResponseBuilder status(String status) {
 			StatusCode code = this.statusCodeBuilder.buildObject();
 			code.setValue(status);
 			Status s = this.statusBuilder.buildObject();
@@ -155,8 +184,11 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 			return this;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
-		public OpenSamlLogoutResponsePartial relayState(String relayState) {
+		public OpenSamlLogoutResponseBuilder relayState(String relayState) {
 			this.relayState = relayState;
 			return this;
 		}
@@ -164,19 +196,19 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 		/**
 		 * Mutate the {@link LogoutResponse} using the provided {@link Consumer}
 		 * @param response the Logout Response {@link Consumer} to use
-		 * @return the partial application for further customizations
+		 * @return the {@link OpenSamlLogoutResponseBuilder} for further customizations
 		 */
-		public OpenSamlLogoutResponsePartial logoutResponse(Consumer<LogoutResponse> response) {
+		public OpenSamlLogoutResponseBuilder logoutResponse(Consumer<LogoutResponse> response) {
 			response.accept(this.logoutResponse);
 			return this;
 		}
 
-		private OpenSamlLogoutResponsePartial destination(String destination) {
+		private OpenSamlLogoutResponseBuilder destination(String destination) {
 			this.logoutResponse.setDestination(destination);
 			return this;
 		}
 
-		private OpenSamlLogoutResponsePartial issuer(String issuer) {
+		private OpenSamlLogoutResponseBuilder issuer(String issuer) {
 			Issuer iss = this.issuerBuilder.buildObject();
 			iss.setValue(issuer);
 			this.logoutResponse.setIssuer(iss);

@@ -93,17 +93,6 @@ public class Saml2LogoutResponseFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenUnauthenticatedThenNoLogout() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2");
-		request.setServletPath("/logout/saml2");
-		request.setParameter("SAMLResponse", "response");
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		this.filter.doFilterInternal(request, response, new MockFilterChain());
-		verifyNoInteractions(this.handler);
-		verifyNoInteractions(this.successHandler);
-	}
-
-	@Test
 	public void doFilterWhenNoSamlRequestOrResponseThenNoLogout() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
 		SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -42,10 +42,10 @@ public interface Saml2LogoutRequestResolver {
 	 * By default, includes a {@code NameID} based on the {@link Authentication} instance.
 	 * @param request the HTTP request
 	 * @param authentication the current principal details
-	 * @return a partial application, useful for overriding any aspects of the SAML 2.0
-	 * Logout Request that the resolver supplied
+	 * @return a builder, useful for overriding any aspects of the SAML 2.0 Logout Request
+	 * that the resolver supplied
 	 */
-	Saml2LogoutRequestPartial<?> resolveLogoutRequest(HttpServletRequest request, Authentication authentication);
+	Saml2LogoutRequestBuilder<?> resolveLogoutRequest(HttpServletRequest request, Authentication authentication);
 
 	/**
 	 * A partial application, useful for overriding any aspects of the SAML 2.0 Logout
@@ -54,19 +54,25 @@ public interface Saml2LogoutRequestResolver {
 	 * The request returned from the {@link #logoutRequest()} method is signed and
 	 * serialized
 	 */
-	interface Saml2LogoutRequestPartial<P extends Saml2LogoutRequestPartial<P>> {
+	interface Saml2LogoutRequestBuilder<P extends Saml2LogoutRequestBuilder<P>> {
 
 		/**
 		 * Use the given name in the SAML 2.0 Logout Request
 		 * @param name the name to use
-		 * @return the partial application for further customizations
+		 * @return the {@link Saml2LogoutRequestBuilder} for further customizations
 		 */
 		P name(String name);
 
+		/**
+		 * Use this relay state when sending the logout response
+		 * @param relayState the relay state to use
+		 * @return the {@link Saml2LogoutRequestBuilder} for further customizations
+		 */
 		P relayState(String relayState);
 
 		/**
-		 * Return a signed and serialized SAML 2.0 Logout Request
+		 * Return a signed and serialized SAML 2.0 Logout Request and associated signed
+		 * request parameters
 		 * @return a signed and serialized SAML 2.0 Logout Request
 		 */
 		Saml2LogoutRequest logoutRequest();

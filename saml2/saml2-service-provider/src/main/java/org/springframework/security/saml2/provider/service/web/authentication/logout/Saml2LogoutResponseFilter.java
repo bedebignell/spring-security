@@ -35,13 +35,18 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A filter for handling logout requests in the form of a &lt;saml2:LogoutRequest&gt; or a
- * &lt;saml2:LogoutResponse&gt;.
+ * A filter for handling a &lt;saml2:LogoutResponse&gt; sent from the asserting party. A
+ * &lt;saml2:LogoutResponse&gt; is sent in response to a &lt;saml2:LogoutRequest&gt;
+ * already sent by the relying party.
+ *
+ * Note that before a &lt;saml2:LogoutRequest&gt; is sent, the user is logged out. Given
+ * that, this implementation should not use any {@link LogoutHandler} or
+ * {@link LogoutSuccessHandler} that rely on the user being logged in.
  *
  * @author Josh Cummings
  * @since 5.5
  */
-public class Saml2LogoutResponseFilter extends OncePerRequestFilter {
+public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 
 	private static final String DEFAULT_LOGOUT_ENDPOINT = "/logout/saml2";
 
@@ -51,10 +56,18 @@ public class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 
 	private LogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
 
+	/**
+	 * Constructs a {@link Saml2LogoutResponseFilter} for accepting SAML 2.0 Logout
+	 * Responses from the asserting party
+	 * @param logoutHandler the handlers for handling the logout response
+	 */
 	public Saml2LogoutResponseFilter(LogoutHandler logoutHandler) {
 		this.logoutHandler = new CompositeLogoutHandler(logoutHandler);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
@@ -70,21 +83,34 @@ public class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 		}
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			chain.doFilter(request, response);
-			return;
-		}
-
 		this.logoutHandler.logout(request, response, authentication);
 		this.logoutSuccessHandler.onLogoutSuccess(request, response, authentication);
 	}
 
+	/**
+	 * Use this {@link RequestMatcher} for requests
+	 *
+	 * This is handy when your asserting party needs it to be a specific endpoint instead
+	 * of the default.
+	 * @param logoutRequestMatcher the {@link RequestMatcher} to use
+	 */
 	public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
 		Assert.notNull(logoutRequestMatcher, "logoutRequestMatcher cannot be null");
 		this.logoutRequestMatcher = logoutRequestMatcher;
 	}
 
+	/**
+	 * Use this {@link LogoutSuccessHandler} when complete
+	 *
+	 * Note that when a &lt;saml2:LogoutResponse&gt; is received, the end user is already
+	 * logged out. Any {@link LogoutSuccessHandler} used here should not rely on the
+	 * {@link Authentication}. {@link SimpleUrlLogoutSuccessHandler} is an example of
+	 * this.
+	 * @param logoutSuccessHandler the {@link LogoutSuccessHandler} to use
+	 * @see SimpleUrlLogoutSuccessHandler
+	 */
 	public void setLogoutSuccessHandler(LogoutSuccessHandler logoutSuccessHandler) {
+		Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
 		this.logoutSuccessHandler = logoutSuccessHandler;
 	}
 

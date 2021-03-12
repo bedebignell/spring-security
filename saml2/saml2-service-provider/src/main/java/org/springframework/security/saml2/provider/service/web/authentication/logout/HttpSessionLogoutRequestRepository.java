@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  * @see Saml2LogoutRequestRepository
  * @see Saml2LogoutRequest
  */
-public class HttpSessionLogoutRequestRepository implements Saml2LogoutRequestRepository {
+public final class HttpSessionLogoutRequestRepository implements Saml2LogoutRequestRepository {
 
 	private static final String DEFAULT_LOGOUT_REQUEST_ATTR_NAME = HttpSessionLogoutRequestRepository.class.getName()
 			+ ".LOGOUT_REQUEST";

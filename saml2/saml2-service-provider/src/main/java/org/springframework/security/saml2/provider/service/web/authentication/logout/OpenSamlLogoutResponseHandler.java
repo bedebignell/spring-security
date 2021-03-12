@@ -46,7 +46,11 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 
 /**
- * We initiated logout, and now its complete
+ * A {@link LogoutHandler} that handles SAML 2.0 Logout Responses received from a SAML 2.0
+ * Asserting Party.
+ *
+ * @author Josh Cummings
+ * @since 5.5
  */
 public final class OpenSamlLogoutResponseHandler implements LogoutHandler {
 
@@ -62,6 +66,12 @@ public final class OpenSamlLogoutResponseHandler implements LogoutHandler {
 
 	private Saml2LogoutRequestRepository logoutRequestRepository = new HttpSessionLogoutRequestRepository();
 
+	/**
+	 * Constructs a {@link OpenSamlLogoutResponseHandler} from the provided parameters
+	 * @param relyingPartyRegistrationResolver the
+	 * {@link RelyingPartyRegistrationResolver} from which to derive the
+	 * {@link RelyingPartyRegistration}
+	 */
 	public OpenSamlLogoutResponseHandler(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
@@ -102,6 +112,11 @@ public final class OpenSamlLogoutResponseHandler implements LogoutHandler {
 		}
 	}
 
+	/**
+	 * Use this {@link Saml2LogoutRequestRepository} for looking up the associated logout
+	 * request.
+	 * @param logoutRequestRepository the {@link Saml2LogoutRequestRepository} to use
+	 */
 	public void setLogoutRequestRepository(Saml2LogoutRequestRepository logoutRequestRepository) {
 		Assert.notNull(logoutRequestRepository, "logoutRequestRepository cannot be null");
 		this.logoutRequestRepository = logoutRequestRepository;

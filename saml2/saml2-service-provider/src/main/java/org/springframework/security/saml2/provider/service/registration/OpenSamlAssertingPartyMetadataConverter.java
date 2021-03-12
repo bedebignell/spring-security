@@ -137,10 +137,11 @@ class OpenSamlAssertingPartyMetadataConverter {
 			else {
 				continue;
 			}
+			String responseLocation = (singleLogoutService.getResponseLocation() == null)
+					? singleLogoutService.getLocation() : singleLogoutService.getResponseLocation();
 			builder.assertingPartyDetails(
 					(party) -> party.singleLogoutServiceLocation(singleLogoutService.getLocation())
-							.singleLogoutServiceResponseLocation(singleLogoutService.getResponseLocation())
-							.singleLogoutServiceBinding(binding));
+							.singleLogoutServiceResponseLocation(responseLocation).singleLogoutServiceBinding(binding));
 			break;
 		}
 		return builder;

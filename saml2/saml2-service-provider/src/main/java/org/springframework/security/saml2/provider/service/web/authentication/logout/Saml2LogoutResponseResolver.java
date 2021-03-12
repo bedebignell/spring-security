@@ -40,10 +40,10 @@ public interface Saml2LogoutResponseResolver {
 	 * Prepare to create, sign, and serialize a SAML 2.0 Logout Response.
 	 * @param request the HTTP request
 	 * @param authentication the current principal details
-	 * @return a partial application, useful for overriding any aspects of the SAML 2.0
-	 * Logout Response that the resolver supplied
+	 * @return a builder, useful for overriding any aspects of the SAML 2.0 Logout
+	 * Response that the resolver supplied
 	 */
-	Saml2LogoutResponsePartial<?> resolveLogoutResponse(HttpServletRequest request, Authentication authentication);
+	Saml2LogoutResponseBuilder<?> resolveLogoutResponse(HttpServletRequest request, Authentication authentication);
 
 	/**
 	 * A partial application, useful for overriding any aspects of the SAML 2.0 Logout
@@ -52,13 +52,13 @@ public interface Saml2LogoutResponseResolver {
 	 * The response returned from the {@link #logoutResponse()} method is signed and
 	 * serialized
 	 */
-	interface Saml2LogoutResponsePartial<P extends Saml2LogoutResponsePartial<P>> {
+	interface Saml2LogoutResponseBuilder<P extends Saml2LogoutResponseBuilder<P>> {
 
 		/**
 		 * Use this value as the {@code InResponseTo} identifier for the associated SAML
 		 * 2.0 Logout Request
 		 * @param name the logout request identifier
-		 * @return the partial application for further customizations
+		 * @return the {@link Saml2LogoutResponseBuilder} for further customizations
 		 */
 		P inResponseTo(String name);
 
@@ -67,14 +67,20 @@ public interface Saml2LogoutResponseResolver {
 		 *
 		 * The default is {@code SUCCESS}.
 		 * @param status the status code to use
-		 * @return the partial application for further customizations
+		 * @return the {@link Saml2LogoutResponseBuilder} for further customizations
 		 */
 		P status(String status);
 
+		/**
+		 * Use this relay state when sending the logout response
+		 * @param relayState the relay state to use
+		 * @return the {@link Saml2LogoutResponseBuilder} for further customizations
+		 */
 		P relayState(String relayState);
 
 		/**
-		 * Return a signed and serialized SAML 2.0 Logout Response
+		 * Return a signed and serialized SAML 2.0 Logout Response and associated signed
+		 * request parameters
 		 * @return a signed and serialized SAML 2.0 Logout Response
 		 */
 		Saml2LogoutResponse logoutResponse();

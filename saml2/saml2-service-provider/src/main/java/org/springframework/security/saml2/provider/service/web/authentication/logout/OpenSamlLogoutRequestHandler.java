@@ -46,7 +46,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 
 /**
- * A {@link LogoutHandler} that handles SAML 2.0 Logout Request's received from a SAML 2.0
+ * A {@link LogoutHandler} that handles SAML 2.0 Logout Requests received from a SAML 2.0
  * Asserting Party.
  *
  * @author Josh Cummings

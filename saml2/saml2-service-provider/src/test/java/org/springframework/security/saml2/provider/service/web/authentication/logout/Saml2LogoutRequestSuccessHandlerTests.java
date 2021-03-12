@@ -33,7 +33,7 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver.Saml2LogoutRequestPartial;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver.Saml2LogoutRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.RETURNS_SELF;
@@ -74,12 +74,13 @@ public class Saml2LogoutRequestSuccessHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/saml2/logout");
 		request.setServletPath("/saml2/logout");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		Saml2LogoutRequestPartial<?> partial = mock(Saml2LogoutRequestPartial.class, RETURNS_SELF);
+		Saml2LogoutRequestBuilder<?> partial = mock(Saml2LogoutRequestBuilder.class, RETURNS_SELF);
 		when(partial.logoutRequest()).thenReturn(logoutRequest);
 		willReturn(partial).given(this.resolver).resolveLogoutRequest(request, authentication);
 		this.handler.onLogoutSuccess(request, response, authentication);
-		assertThat(response.getHeader("Location"))
-				.startsWith(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
+		String content = response.getHeader("Location");
+		assertThat(content).contains("SAMLRequest");
+		assertThat(content).startsWith(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 	}
 
 	@Test
@@ -93,12 +94,13 @@ public class Saml2LogoutRequestSuccessHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/saml2/logout");
 		request.setServletPath("/saml2/logout");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		Saml2LogoutRequestPartial<?> partial = mock(Saml2LogoutRequestPartial.class, RETURNS_SELF);
+		Saml2LogoutRequestBuilder<?> partial = mock(Saml2LogoutRequestBuilder.class, RETURNS_SELF);
 		when(partial.logoutRequest()).thenReturn(logoutRequest);
 		willReturn(partial).given(this.resolver).resolveLogoutRequest(request, authentication);
 		this.handler.onLogoutSuccess(request, response, authentication);
-		assertThat(response.getContentAsString())
-				.contains(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
+		String content = response.getContentAsString();
+		assertThat(content).contains("SAMLRequest");
+		assertThat(content).contains(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 	}
 
 	private Saml2Authentication authentication(RelyingPartyRegistration registration) {

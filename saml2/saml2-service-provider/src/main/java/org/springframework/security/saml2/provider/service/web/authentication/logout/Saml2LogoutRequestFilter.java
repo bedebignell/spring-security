@@ -33,13 +33,13 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A filter for handling logout requests in the form of a &lt;saml2:LogoutRequest&gt; or a
- * &lt;saml2:LogoutResponse&gt;.
+ * A filter for handling logout requests in the form of a &lt;saml2:LogoutRequest&gt; sent
+ * from the asserting party.
  *
  * @author Josh Cummings
  * @since 5.5
  */
-public class Saml2LogoutRequestFilter extends OncePerRequestFilter {
+public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 
 	private static final String DEFAULT_LOGOUT_ENDPOINT = "/logout/saml2";
 

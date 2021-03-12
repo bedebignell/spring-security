@@ -26,7 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver.Saml2LogoutRequestPartial;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver.Saml2LogoutRequestBuilder;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -70,11 +70,11 @@ public final class Saml2LogoutRequestSuccessHandler implements LogoutSuccessHand
 	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException {
-		Saml2LogoutRequestPartial<?> partial = this.logoutRequestResolver.resolveLogoutRequest(request, authentication);
-		if (partial == null) {
+		Saml2LogoutRequestBuilder<?> builder = this.logoutRequestResolver.resolveLogoutRequest(request, authentication);
+		if (builder == null) {
 			return;
 		}
-		Saml2LogoutRequest logoutRequest = partial.logoutRequest();
+		Saml2LogoutRequest logoutRequest = builder.logoutRequest();
 		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, request, response);
 		if (logoutRequest.getBinding() == Saml2MessageBinding.REDIRECT) {
 			doRedirect(request, response, logoutRequest);

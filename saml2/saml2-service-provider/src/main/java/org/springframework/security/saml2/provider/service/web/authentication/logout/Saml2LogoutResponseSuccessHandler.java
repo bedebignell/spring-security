@@ -26,7 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver.Saml2LogoutResponsePartial;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver.Saml2LogoutResponseBuilder;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -73,12 +73,12 @@ public final class Saml2LogoutResponseSuccessHandler implements LogoutSuccessHan
 		if (logoutRequestId == null) {
 			return;
 		}
-		Saml2LogoutResponsePartial<?> partial = this.logoutResponseResolver.resolveLogoutResponse(request,
+		Saml2LogoutResponseBuilder<?> builder = this.logoutResponseResolver.resolveLogoutResponse(request,
 				authentication);
-		if (partial == null) {
+		if (builder == null) {
 			return;
 		}
-		Saml2LogoutResponse logoutResponse = partial.inResponseTo(logoutRequestId).logoutResponse();
+		Saml2LogoutResponse logoutResponse = builder.inResponseTo(logoutRequestId).logoutResponse();
 		if (logoutResponse.getBinding() == Saml2MessageBinding.REDIRECT) {
 			doRedirect(request, response, logoutResponse);
 		}
@@ -91,7 +91,7 @@ public final class Saml2LogoutResponseSuccessHandler implements LogoutSuccessHan
 			Saml2LogoutResponse logoutResponse) throws IOException {
 		String location = logoutResponse.getResponseLocation();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
-		addParameter("SAMLRequest", logoutResponse, uriBuilder);
+		addParameter("SAMLResponse", logoutResponse, uriBuilder);
 		addParameter("RelayState", logoutResponse, uriBuilder);
 		addParameter("SigAlg", logoutResponse, uriBuilder);
 		addParameter("Signature", logoutResponse, uriBuilder);
@@ -133,7 +133,7 @@ public final class Saml2LogoutResponseSuccessHandler implements LogoutSuccessHan
 		html.append(location);
 		html.append("\" method=\"post\">\n");
 		html.append("            <div>\n");
-		html.append("                <input type=\"hidden\" name=\"SAMLRequest\" value=\"");
+		html.append("                <input type=\"hidden\" name=\"SAMLResponse\" value=\"");
 		html.append(HtmlUtils.htmlEscape(samlRequest));
 		html.append("\"/>\n");
 		if (StringUtils.hasText(relayState)) {
