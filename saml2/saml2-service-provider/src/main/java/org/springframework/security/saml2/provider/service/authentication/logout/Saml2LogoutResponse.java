@@ -70,6 +70,14 @@ public final class Saml2LogoutResponse {
 	}
 
 	/**
+	 * The relay state associated with this Logout Request
+	 * @return the relay state
+	 */
+	public String getRelayState() {
+		return this.parameters.get("RelayState");
+	}
+
+	/**
 	 * Get the {@code name} parameter
 	 *
 	 * Useful when specifying additional query parameters for the SingleLogoutService
@@ -123,6 +131,17 @@ public final class Saml2LogoutResponse {
 		 */
 		public Builder samlResponse(String samlResponse) {
 			this.parameters.put("SAMLResponse", samlResponse);
+			return this;
+		}
+
+		/**
+		 * Use this value for the relay state when sending the Logout Request to the
+		 * asserting party
+		 * @param relayState the relay state
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder relayState(String relayState) {
+			this.parameters.put("RelayState", relayState);
 			return this;
 		}
 

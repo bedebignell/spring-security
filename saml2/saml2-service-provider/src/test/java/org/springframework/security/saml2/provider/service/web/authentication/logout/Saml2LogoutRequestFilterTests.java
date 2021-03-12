@@ -34,14 +34,13 @@ import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.verifyNoInteractions;
 
-public class Saml2AssertingPartyLogoutRequestFilterTests {
+public class Saml2LogoutRequestFilterTests {
 
 	private final LogoutHandler handler = mock(LogoutHandler.class);
 
 	private final LogoutSuccessHandler successHandler = mock(LogoutSuccessHandler.class);
 
-	private final Saml2AssertingPartyLogoutRequestFilter filter = new Saml2AssertingPartyLogoutRequestFilter(
-			this.successHandler, this.handler);
+	private final Saml2LogoutRequestFilter filter = new Saml2LogoutRequestFilter(this.successHandler, this.handler);
 
 	@After
 	public void tearDown() {

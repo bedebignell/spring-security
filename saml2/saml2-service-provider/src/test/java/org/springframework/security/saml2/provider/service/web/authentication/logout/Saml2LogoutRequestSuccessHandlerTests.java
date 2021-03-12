@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -42,16 +42,22 @@ import static org.mockito.BDDMockito.when;
 import static org.mockito.BDDMockito.willReturn;
 
 /**
- * Tests for {@link Saml2RelyingPartyLogoutRequestFilter}
+ * Tests for {@link Saml2LogoutRequestSuccessHandler}
  *
  * @author Josh Cummings
  */
-public class Saml2RelyingPartyLogoutRequestFilterTests {
+public class Saml2LogoutRequestSuccessHandlerTests {
 
 	private final Saml2LogoutRequestResolver resolver = mock(Saml2LogoutRequestResolver.class);
 
-	private final Saml2RelyingPartyLogoutRequestFilter handler = new Saml2RelyingPartyLogoutRequestFilter(
-			this.resolver);
+	private final Saml2LogoutRequestRepository repository = mock(Saml2LogoutRequestRepository.class);
+
+	private final Saml2LogoutRequestSuccessHandler handler = new Saml2LogoutRequestSuccessHandler(this.resolver);
+
+	@Before
+	public void setUp() {
+		this.handler.setLogoutRequestRepository(this.repository);
+	}
 
 	@After
 	public void tearDown() {
@@ -71,7 +77,7 @@ public class Saml2RelyingPartyLogoutRequestFilterTests {
 		Saml2LogoutRequestPartial<?> partial = mock(Saml2LogoutRequestPartial.class, RETURNS_SELF);
 		when(partial.logoutRequest()).thenReturn(logoutRequest);
 		willReturn(partial).given(this.resolver).resolveLogoutRequest(request, authentication);
-		this.handler.doFilterInternal(request, response, new MockFilterChain());
+		this.handler.onLogoutSuccess(request, response, authentication);
 		assertThat(response.getHeader("Location"))
 				.startsWith(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 	}
@@ -90,7 +96,7 @@ public class Saml2RelyingPartyLogoutRequestFilterTests {
 		Saml2LogoutRequestPartial<?> partial = mock(Saml2LogoutRequestPartial.class, RETURNS_SELF);
 		when(partial.logoutRequest()).thenReturn(logoutRequest);
 		willReturn(partial).given(this.resolver).resolveLogoutRequest(request, authentication);
-		this.handler.doFilterInternal(request, response, new MockFilterChain());
+		this.handler.onLogoutSuccess(request, response, authentication);
 		assertThat(response.getContentAsString())
 				.contains(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 	}

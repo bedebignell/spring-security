@@ -17,7 +17,6 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -46,6 +45,7 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlSigningUtils.QueryParametersPartial;
 import org.springframework.util.Assert;
 
 /**
@@ -72,7 +72,8 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 		}
 		return new OpenSamlLogoutResponsePartial(registration)
 				.destination(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation())
-				.issuer(registration.getEntityId()).status(StatusCode.SUCCESS);
+				.issuer(registration.getEntityId()).status(StatusCode.SUCCESS)
+				.relayState(request.getParameter("RelayState"));
 	}
 
 	/**
@@ -105,6 +106,8 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 		private final RelyingPartyRegistration registration;
 
 		private final LogoutResponse logoutResponse;
+
+		private String relayState;
 
 		/**
 		 * Construct a {@link OpenSamlLogoutResponsePartial} using the provided parameters
@@ -152,6 +155,12 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 			return this;
 		}
 
+		@Override
+		public OpenSamlLogoutResponsePartial relayState(String relayState) {
+			this.relayState = relayState;
+			return this;
+		}
+
 		/**
 		 * Mutate the {@link LogoutResponse} using the provided {@link Consumer}
 		 * @param response the Logout Response {@link Consumer} to use
@@ -192,9 +201,12 @@ public final class OpenSamlLogoutResponseResolver implements Saml2LogoutResponse
 				String xml = serialize(this.logoutResponse);
 				String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 				result.samlResponse(deflatedAndEncoded);
-				Map<String, String> parameters = OpenSamlSigningUtils.sign(this.registration)
-						.param("SAMLResponse", deflatedAndEncoded).parameters();
-				return result.parameters((params) -> params.putAll(parameters)).build();
+				QueryParametersPartial partial = OpenSamlSigningUtils.sign(this.registration).param("SAMLResponse",
+						deflatedAndEncoded);
+				if (this.relayState != null) {
+					partial.param("RelayState", this.relayState);
+				}
+				return result.parameters((params) -> params.putAll(partial.parameters())).build();
 			}
 		}
 

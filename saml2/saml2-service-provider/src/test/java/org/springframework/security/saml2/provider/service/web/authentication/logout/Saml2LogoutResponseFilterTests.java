@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.mock.web.MockFilterChain;
@@ -34,14 +35,18 @@ import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
 import static org.mockito.BDDMockito.verifyNoInteractions;
 
-public class Saml2AssertingPartyLogoutResponseFilterTests {
+public class Saml2LogoutResponseFilterTests {
 
 	private final LogoutHandler handler = mock(LogoutHandler.class);
 
 	private final LogoutSuccessHandler successHandler = mock(LogoutSuccessHandler.class);
 
-	private final Saml2AssertingPartyLogoutResponseFilter filter = new Saml2AssertingPartyLogoutResponseFilter(
-			this.successHandler, this.handler);
+	private final Saml2LogoutResponseFilter filter = new Saml2LogoutResponseFilter(this.handler);
+
+	@Before
+	public void setUp() {
+		this.filter.setLogoutSuccessHandler(this.successHandler);
+	}
 
 	@After
 	public void tearDown() {

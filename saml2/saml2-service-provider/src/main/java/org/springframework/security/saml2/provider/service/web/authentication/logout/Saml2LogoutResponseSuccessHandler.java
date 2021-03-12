@@ -43,18 +43,18 @@ import org.springframework.web.util.UriUtils;
  * @author Josh Cummings
  * @since 5.5
  */
-public final class Saml2RelyingPartyLogoutResponseSuccessHandler implements LogoutSuccessHandler {
+public final class Saml2LogoutResponseSuccessHandler implements LogoutSuccessHandler {
 
 	private final Saml2LogoutResponseResolver logoutResponseResolver;
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
-	 * Constructs a {@link Saml2RelyingPartyLogoutResponseSuccessHandler} using the
-	 * provided parameters
+	 * Constructs a {@link Saml2LogoutResponseSuccessHandler} using the provided
+	 * parameters
 	 * @param logoutResponseResolver the {@link Saml2LogoutResponseResolver} to use
 	 */
-	public Saml2RelyingPartyLogoutResponseSuccessHandler(Saml2LogoutResponseResolver logoutResponseResolver) {
+	public Saml2LogoutResponseSuccessHandler(Saml2LogoutResponseResolver logoutResponseResolver) {
 		this.logoutResponseResolver = logoutResponseResolver;
 	}
 
@@ -92,6 +92,7 @@ public final class Saml2RelyingPartyLogoutResponseSuccessHandler implements Logo
 		String location = logoutResponse.getResponseLocation();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
 		addParameter("SAMLRequest", logoutResponse, uriBuilder);
+		addParameter("RelayState", logoutResponse, uriBuilder);
 		addParameter("SigAlg", logoutResponse, uriBuilder);
 		addParameter("Signature", logoutResponse, uriBuilder);
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
@@ -114,6 +115,7 @@ public final class Saml2RelyingPartyLogoutResponseSuccessHandler implements Logo
 	private String createSamlPostRequestFormData(Saml2LogoutResponse logoutResponse) {
 		String location = logoutResponse.getResponseLocation();
 		String samlRequest = logoutResponse.getSamlResponse();
+		String relayState = logoutResponse.getRelayState();
 		StringBuilder html = new StringBuilder();
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
@@ -134,6 +136,11 @@ public final class Saml2RelyingPartyLogoutResponseSuccessHandler implements Logo
 		html.append("                <input type=\"hidden\" name=\"SAMLRequest\" value=\"");
 		html.append(HtmlUtils.htmlEscape(samlRequest));
 		html.append("\"/>\n");
+		if (StringUtils.hasText(relayState)) {
+			html.append("                <input type=\"hidden\" name=\"RelayState\" value=\"");
+			html.append(HtmlUtils.htmlEscape(relayState));
+			html.append("\"/>\n");
+		}
 		html.append("            </div>\n");
 		html.append("            <noscript>\n");
 		html.append("                <div>\n");

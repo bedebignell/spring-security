@@ -113,6 +113,8 @@ public final class OpenSamlLogoutRequestResolver implements Saml2LogoutRequestRe
 
 		private final LogoutRequest logoutRequest;
 
+		private String relayState;
+
 		/**
 		 * Construct a {@link OpenSamlLogoutRequestPartial} using the provided parameters
 		 * @param registration the {@link RelyingPartyRegistration} to use
@@ -142,6 +144,12 @@ public final class OpenSamlLogoutRequestResolver implements Saml2LogoutRequestRe
 			NameID nameId = this.nameIdBuilder.buildObject();
 			nameId.setValue(name);
 			this.logoutRequest.setNameID(nameId);
+			return this;
+		}
+
+		@Override
+		public OpenSamlLogoutRequestPartial relayState(String relayState) {
+			this.relayState = relayState;
 			return this;
 		}
 
@@ -175,7 +183,11 @@ public final class OpenSamlLogoutRequestResolver implements Saml2LogoutRequestRe
 			if (this.logoutRequest.getID() == null) {
 				this.logoutRequest.setID("LR" + UUID.randomUUID());
 			}
-			Saml2LogoutRequest.Builder result = Saml2LogoutRequest.withRelyingPartyRegistration(this.registration);
+			if (this.relayState == null) {
+				this.relayState = UUID.randomUUID().toString();
+			}
+			Saml2LogoutRequest.Builder result = Saml2LogoutRequest.withRelyingPartyRegistration(this.registration)
+					.id(this.logoutRequest.getID());
 			if (this.registration.getAssertingPartyDetails()
 					.getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {
 				String xml = serialize(OpenSamlSigningUtils.sign(this.logoutRequest, this.registration));
@@ -186,7 +198,7 @@ public final class OpenSamlLogoutRequestResolver implements Saml2LogoutRequestRe
 				String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 				result.samlRequest(deflatedAndEncoded);
 				Map<String, String> parameters = OpenSamlSigningUtils.sign(this.registration)
-						.param("SAMLRequest", deflatedAndEncoded).parameters();
+						.param("SAMLRequest", deflatedAndEncoded).param("RelayState", this.relayState).parameters();
 				return result.parameters((params) -> params.putAll(parameters)).build();
 			}
 		}

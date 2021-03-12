@@ -22,8 +22,6 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import javax.servlet.Filter;
-
 import org.joda.time.DateTime;
 
 import org.springframework.context.annotation.Bean;
@@ -41,19 +39,18 @@ import org.springframework.security.saml2.provider.service.web.authentication.lo
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutResponseHandler;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutResponseResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2AssertingPartyLogoutResponseFilter;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyLogoutRequestFilter;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyLogoutResponseSuccessHandler;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestSuccessHandler;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseSuccessHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -72,48 +69,48 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityFilterChain web(HttpSecurity http, RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) throws Exception {
-		LogoutHandler logoutHandler = logoutHandler(relyingPartyRegistrationResolver);
-		LogoutSuccessHandler logoutSuccessHandler = logoutSuccessHandler(relyingPartyRegistrationResolver);
-		Filter logoutRequestFilter = logoutRequestFilter(relyingPartyRegistrationResolver);
+		LogoutHandler logoutRequestHandler = logoutRequestHandler(relyingPartyRegistrationResolver);
+		LogoutHandler logoutResponseHandler = logoutResponseHandler(relyingPartyRegistrationResolver);
+		LogoutSuccessHandler logoutRequestSuccessHandler = logoutRequestSuccessHandler(relyingPartyRegistrationResolver);
+		LogoutSuccessHandler logoutResponseSuccessHandler = logoutResponseSuccessHandler(relyingPartyRegistrationResolver);
 
 		http
 			.authorizeRequests((authorize) -> authorize
 				.anyRequest().authenticated()
 			)
 			.saml2Login(withDefaults())
-			.addFilterBefore(new Saml2AssertingPartyLogoutResponseFilter(logoutSuccessHandler, logoutHandler), CsrfFilter.class)
-			.addFilterBefore(logoutRequestFilter, LogoutFilter.class);
+			.logout((logout) -> logout.logoutSuccessHandler(logoutRequestSuccessHandler))
+			.addFilterBefore(new Saml2LogoutRequestFilter(logoutResponseSuccessHandler, logoutRequestHandler), CsrfFilter.class)
+			.addFilterBefore(new Saml2LogoutResponseFilter(logoutResponseHandler), CsrfFilter.class);
 
 		return http.build();
 	}
 
-	LogoutHandler logoutHandler(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+	LogoutHandler logoutRequestHandler(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		return new CompositeLogoutHandler(
-				new SecurityContextLogoutHandler(),
-				new LogoutSuccessEventPublishingLogoutHandler(),
 				new OpenSamlLogoutRequestHandler(relyingPartyRegistrationResolver),
-				new OpenSamlLogoutResponseHandler(relyingPartyRegistrationResolver));
+				new SecurityContextLogoutHandler(),
+				new LogoutSuccessEventPublishingLogoutHandler());
 	}
 
-	LogoutSuccessHandler logoutSuccessHandler(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+	LogoutHandler logoutResponseHandler(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+		return new OpenSamlLogoutResponseHandler(relyingPartyRegistrationResolver);
+	}
+
+	LogoutSuccessHandler logoutResponseSuccessHandler(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		OpenSamlLogoutResponseResolver delegate = new OpenSamlLogoutResponseResolver(relyingPartyRegistrationResolver);
 		Saml2LogoutResponseResolver responseResolver = (request, authentication) ->
 				delegate.resolveLogoutResponse(request, authentication)
 						.logoutResponse((logoutResponse) -> logoutResponse.setIssueInstant(DateTime.now()));
-		LogoutSuccessHandler redirect = new SimpleUrlLogoutSuccessHandler();
-		LogoutSuccessHandler successHandler = new Saml2RelyingPartyLogoutResponseSuccessHandler(responseResolver);
-		return (request, response, authentication) -> {
-			successHandler.onLogoutSuccess(request, response, authentication);
-			redirect.onLogoutSuccess(request, response, authentication);
-		};
+		return new Saml2LogoutResponseSuccessHandler(responseResolver);
 	}
 
-	Filter logoutRequestFilter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+	LogoutSuccessHandler logoutRequestSuccessHandler(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		OpenSamlLogoutRequestResolver delegate = new OpenSamlLogoutRequestResolver(relyingPartyRegistrationResolver);
 		Saml2LogoutRequestResolver requestResolver = (request, authentication) ->
 				delegate.resolveLogoutRequest(request, authentication)
 						.logoutRequest((logoutRequest) -> logoutRequest.setIssueInstant(DateTime.now()));
-		return new Saml2RelyingPartyLogoutRequestFilter(requestResolver);
+		return new Saml2LogoutRequestSuccessHandler(requestResolver);
 	}
 
 	@Bean

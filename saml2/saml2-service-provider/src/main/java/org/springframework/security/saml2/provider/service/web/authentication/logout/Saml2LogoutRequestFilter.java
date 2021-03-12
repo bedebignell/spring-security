@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -40,7 +39,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Josh Cummings
  * @since 5.5
  */
-public class Saml2AssertingPartyLogoutRequestFilter extends OncePerRequestFilter {
+public class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 
 	private static final String DEFAULT_LOGOUT_ENDPOINT = "/logout/saml2";
 
@@ -50,10 +49,9 @@ public class Saml2AssertingPartyLogoutRequestFilter extends OncePerRequestFilter
 
 	private final LogoutSuccessHandler logoutSuccessHandler;
 
-	public Saml2AssertingPartyLogoutRequestFilter(LogoutSuccessHandler logoutSuccessHandler,
-			LogoutHandler... logoutHandler) {
+	public Saml2LogoutRequestFilter(LogoutSuccessHandler logoutSuccessHandler, LogoutHandler logoutHandler) {
 		this.logoutSuccessHandler = logoutSuccessHandler;
-		this.logoutHandler = new CompositeLogoutHandler(logoutHandler);
+		this.logoutHandler = logoutHandler;
 	}
 
 	@Override

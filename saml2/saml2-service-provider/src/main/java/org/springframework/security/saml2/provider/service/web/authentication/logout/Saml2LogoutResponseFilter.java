@@ -28,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -40,7 +41,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Josh Cummings
  * @since 5.5
  */
-public class Saml2AssertingPartyLogoutResponseFilter extends OncePerRequestFilter {
+public class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 
 	private static final String DEFAULT_LOGOUT_ENDPOINT = "/logout/saml2";
 
@@ -48,11 +49,9 @@ public class Saml2AssertingPartyLogoutResponseFilter extends OncePerRequestFilte
 
 	private final LogoutHandler logoutHandler;
 
-	private final LogoutSuccessHandler logoutSuccessHandler;
+	private LogoutSuccessHandler logoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
 
-	public Saml2AssertingPartyLogoutResponseFilter(LogoutSuccessHandler logoutSuccessHandler,
-			LogoutHandler... logoutHandler) {
-		this.logoutSuccessHandler = logoutSuccessHandler;
+	public Saml2LogoutResponseFilter(LogoutHandler logoutHandler) {
 		this.logoutHandler = new CompositeLogoutHandler(logoutHandler);
 	}
 
@@ -83,6 +82,10 @@ public class Saml2AssertingPartyLogoutResponseFilter extends OncePerRequestFilte
 	public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
 		Assert.notNull(logoutRequestMatcher, "logoutRequestMatcher cannot be null");
 		this.logoutRequestMatcher = logoutRequestMatcher;
+	}
+
+	public void setLogoutSuccessHandler(LogoutSuccessHandler logoutSuccessHandler) {
+		this.logoutSuccessHandler = logoutSuccessHandler;
 	}
 
 }

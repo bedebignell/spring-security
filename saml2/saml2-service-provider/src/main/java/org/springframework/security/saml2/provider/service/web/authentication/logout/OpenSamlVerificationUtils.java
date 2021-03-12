@@ -181,11 +181,22 @@ final class OpenSamlVerificationUtils {
 			}
 
 			byte[] getContent() {
-				String query = String.format("%s=%s&SigAlg=%s", this.objectParameterName,
-						UriUtils.encode(this.request.getParameter(this.objectParameterName),
-								StandardCharsets.ISO_8859_1),
-						UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1));
-				return query.getBytes(StandardCharsets.UTF_8);
+				if (this.request.getParameter("RelayState") != null) {
+					return String.format("%s=%s&RelayState=%s&SigAlg=%s", this.objectParameterName,
+							UriUtils.encode(this.request.getParameter(this.objectParameterName),
+									StandardCharsets.ISO_8859_1),
+							UriUtils.encode(this.request.getParameter("RelayState"), StandardCharsets.ISO_8859_1),
+							UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
+							.getBytes(StandardCharsets.UTF_8);
+				}
+				else {
+					return String
+							.format("%s=%s&SigAlg=%s", this.objectParameterName,
+									UriUtils.encode(this.request.getParameter(this.objectParameterName),
+											StandardCharsets.ISO_8859_1),
+									UriUtils.encode(getAlgorithm(), StandardCharsets.ISO_8859_1))
+							.getBytes(StandardCharsets.UTF_8);
+				}
 			}
 
 			byte[] getSignature() {

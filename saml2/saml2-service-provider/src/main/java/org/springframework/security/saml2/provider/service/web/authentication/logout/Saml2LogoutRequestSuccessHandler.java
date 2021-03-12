@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,85 +19,74 @@ package org.springframework.security.saml2.provider.service.web.authentication.l
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver.Saml2LogoutRequestPartial;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
 /**
- * A filter for initiating logout with a SAML 2.0 Asserting Party.
- *
- * Note that logout does not complete until the application receives a SAML 2.0 Logout
- * Response from the asserting party.
+ * A success handler for issuing a SAML 2.0 Logout Response in response to the SAML 2.0
+ * Logout Request that the SAML 2.0 Asserting Party sent
  *
  * @author Josh Cummings
  * @since 5.5
  */
-public final class Saml2RelyingPartyLogoutRequestFilter extends OncePerRequestFilter {
-
-	private RequestMatcher logoutRequestMatcher = new AntPathRequestMatcher("/saml2/logout", "POST");
+public final class Saml2LogoutRequestSuccessHandler implements LogoutSuccessHandler {
 
 	private final Saml2LogoutRequestResolver logoutRequestResolver;
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
+	private Saml2LogoutRequestRepository logoutRequestRepository = new HttpSessionLogoutRequestRepository();
+
 	/**
-	 * Constructs a {@link Saml2RelyingPartyLogoutRequestFilter} with the provided
-	 * parameters
+	 * Constructs a {@link Saml2LogoutRequestSuccessHandler} using the provided parameters
 	 * @param logoutRequestResolver the {@link Saml2LogoutRequestResolver} to use
 	 */
-	public Saml2RelyingPartyLogoutRequestFilter(Saml2LogoutRequestResolver logoutRequestResolver) {
-		Assert.notNull(logoutRequestResolver, "logoutRequestResolver cannot be null");
+	public Saml2LogoutRequestSuccessHandler(Saml2LogoutRequestResolver logoutRequestResolver) {
 		this.logoutRequestResolver = logoutRequestResolver;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Produce and send a SAML 2.0 Logout Response based on the SAML 2.0 Logout Request
+	 * received from the asserting party
+	 * @param request the HTTP request
+	 * @param response the HTTP response
+	 * @param authentication the current principal details
+	 * @throws IOException when failing to write to the response
 	 */
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-			throws ServletException, IOException {
-		if (!this.logoutRequestMatcher.matches(request)) {
-			chain.doFilter(request, response);
-			return;
-		}
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			chain.doFilter(request, response);
-			return;
-		}
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException {
 		Saml2LogoutRequestPartial<?> partial = this.logoutRequestResolver.resolveLogoutRequest(request, authentication);
 		if (partial == null) {
-			chain.doFilter(request, response);
 			return;
 		}
 		Saml2LogoutRequest logoutRequest = partial.logoutRequest();
-		Saml2MessageBinding binding = logoutRequest.getBinding();
-		// redirect to asserting party
-		if (binding == Saml2MessageBinding.REDIRECT) {
+		this.logoutRequestRepository.saveLogoutRequest(logoutRequest, request, response);
+		if (logoutRequest.getBinding() == Saml2MessageBinding.REDIRECT) {
 			doRedirect(request, response, logoutRequest);
 		}
 		else {
 			doPost(response, logoutRequest);
 		}
+	}
 
+	public void setLogoutRequestRepository(Saml2LogoutRequestRepository logoutRequestRepository) {
+		Assert.notNull(logoutRequestRepository, "logoutRequestRepository cannot be null");
+		this.logoutRequestRepository = logoutRequestRepository;
 	}
 
 	private void doRedirect(HttpServletRequest request, HttpServletResponse response, Saml2LogoutRequest logoutRequest)
@@ -105,6 +94,7 @@ public final class Saml2RelyingPartyLogoutRequestFilter extends OncePerRequestFi
 		String location = logoutRequest.getLocation();
 		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
 		addParameter("SAMLRequest", logoutRequest, uriBuilder);
+		addParameter("RelayState", logoutRequest, uriBuilder);
 		addParameter("SigAlg", logoutRequest, uriBuilder);
 		addParameter("Signature", logoutRequest, uriBuilder);
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
@@ -127,6 +117,7 @@ public final class Saml2RelyingPartyLogoutRequestFilter extends OncePerRequestFi
 	private String createSamlPostRequestFormData(Saml2LogoutRequest logoutRequest) {
 		String location = logoutRequest.getLocation();
 		String samlRequest = logoutRequest.getSamlRequest();
+		String relayState = logoutRequest.getRelayState();
 		StringBuilder html = new StringBuilder();
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
@@ -147,6 +138,11 @@ public final class Saml2RelyingPartyLogoutRequestFilter extends OncePerRequestFi
 		html.append("                <input type=\"hidden\" name=\"SAMLRequest\" value=\"");
 		html.append(HtmlUtils.htmlEscape(samlRequest));
 		html.append("\"/>\n");
+		if (StringUtils.hasText(relayState)) {
+			html.append("                <input type=\"hidden\" name=\"RelayState\" value=\"");
+			html.append(HtmlUtils.htmlEscape(relayState));
+			html.append("\"/>\n");
+		}
 		html.append("            </div>\n");
 		html.append("            <noscript>\n");
 		html.append("                <div>\n");

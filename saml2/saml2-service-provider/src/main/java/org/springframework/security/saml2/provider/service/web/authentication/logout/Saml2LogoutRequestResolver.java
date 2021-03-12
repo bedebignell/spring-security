@@ -63,6 +63,8 @@ public interface Saml2LogoutRequestResolver {
 		 */
 		P name(String name);
 
+		P relayState(String relayState);
+
 		/**
 		 * Return a signed and serialized SAML 2.0 Logout Request
 		 * @return a signed and serialized SAML 2.0 Logout Request

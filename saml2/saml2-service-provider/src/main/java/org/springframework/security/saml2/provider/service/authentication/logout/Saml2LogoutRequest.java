@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication.logout;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +32,7 @@ import org.springframework.security.saml2.provider.service.web.authentication.lo
  * @author Josh Cummings
  * @since 5.5
  */
-public final class Saml2LogoutRequest {
+public final class Saml2LogoutRequest implements Serializable {
 
 	private final String location;
 
@@ -39,10 +40,25 @@ public final class Saml2LogoutRequest {
 
 	private final Map<String, String> parameters;
 
-	private Saml2LogoutRequest(String location, Saml2MessageBinding binding, Map<String, String> parameters) {
+	private final String id;
+
+	private final String relyingPartyRegistrationId;
+
+	private Saml2LogoutRequest(String location, Saml2MessageBinding binding, Map<String, String> parameters, String id,
+			String relyingPartyRegistrationId) {
 		this.location = location;
 		this.binding = binding;
 		this.parameters = Collections.unmodifiableMap(new HashMap<>(parameters));
+		this.id = id;
+		this.relyingPartyRegistrationId = relyingPartyRegistrationId;
+	}
+
+	/**
+	 * The unique identifier for this Logout Request
+	 * @return the Logout Request identifier
+	 */
+	public String getId() {
+		return this.id;
 	}
 
 	/**
@@ -70,6 +86,14 @@ public final class Saml2LogoutRequest {
 	}
 
 	/**
+	 * The relay state associated with this Logout Request
+	 * @return the relay state
+	 */
+	public String getRelayState() {
+		return this.parameters.get("RelayState");
+	}
+
+	/**
 	 * Get the {@code name} parameter
 	 *
 	 * Useful when specifying additional query parameters for the SingleLogoutService
@@ -93,6 +117,15 @@ public final class Saml2LogoutRequest {
 	}
 
 	/**
+	 * The identifier for the {@link RelyingPartyRegistration} associated with this Logout
+	 * Request
+	 * @return the {@link RelyingPartyRegistration} id
+	 */
+	public String getRelyingPartyRegistrationId() {
+		return this.relyingPartyRegistrationId;
+	}
+
+	/**
 	 * Create a {@link Builder} instance from this {@link RelyingPartyRegistration}
 	 *
 	 * Specifically, this will pull the SingleLogoutService location and binding from the
@@ -110,6 +143,8 @@ public final class Saml2LogoutRequest {
 
 		private Map<String, String> parameters = new HashMap<>();
 
+		private String id;
+
 		private Builder(RelyingPartyRegistration registration) {
 			this.registration = registration;
 		}
@@ -122,6 +157,27 @@ public final class Saml2LogoutRequest {
 		 */
 		public Builder samlRequest(String samlRequest) {
 			this.parameters.put("SAMLRequest", samlRequest);
+			return this;
+		}
+
+		/**
+		 * Use this value for the relay state when sending the Logout Request to the
+		 * asserting party
+		 * @param relayState the relay state
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder relayState(String relayState) {
+			this.parameters.put("RelayState", relayState);
+			return this;
+		}
+
+		/**
+		 * This is the unique id used in the {@link #samlRequest}
+		 * @param id the Logout Request id
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder id(String id) {
+			this.id = id;
 			return this;
 		}
 
@@ -141,7 +197,8 @@ public final class Saml2LogoutRequest {
 		 */
 		public Saml2LogoutRequest build() {
 			return new Saml2LogoutRequest(this.registration.getAssertingPartyDetails().getSingleLogoutServiceLocation(),
-					this.registration.getAssertingPartyDetails().getSingleLogoutServiceBinding(), this.parameters);
+					this.registration.getAssertingPartyDetails().getSingleLogoutServiceBinding(), this.parameters,
+					this.id, this.registration.getRegistrationId());
 		}
 
 	}

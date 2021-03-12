@@ -38,7 +38,7 @@ import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
-import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlVerificationUtils.VerifierPartial;
@@ -54,11 +54,13 @@ public final class OpenSamlLogoutResponseHandler implements LogoutHandler {
 		OpenSamlInitializationService.initialize();
 	}
 
-	private RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
+	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	private final ParserPool parserPool;
 
 	private final LogoutResponseUnmarshaller unmarshaller;
+
+	private Saml2LogoutRequestRepository logoutRequestRepository = new HttpSessionLogoutRequestRepository();
 
 	public OpenSamlLogoutResponseHandler(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
@@ -83,19 +85,26 @@ public final class OpenSamlLogoutResponseHandler implements LogoutHandler {
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		String serialized = request.getParameter("SAMLResponse");
 		Assert.notNull(serialized, "SAMLResponse cannot be null");
-		Assert.isTrue(authentication instanceof Saml2Authentication,
-				"authentication must be of type Saml2Authentication");
 		byte[] b = Saml2Utils.samlDecode(serialized);
 		serialized = Saml2Utils.samlInflate(b);
-		Saml2Authentication saml2Authentication = (Saml2Authentication) authentication;
+		Saml2LogoutRequest logoutRequest = this.logoutRequestRepository.removeLogoutRequest(request, response);
+		if (logoutRequest == null) {
+			throw new Saml2Exception("Failed to find associated LogoutRequest");
+		}
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationResolver.resolve(request,
-				saml2Authentication.getRelyingPartyRegistrationId());
+				logoutRequest.getRelyingPartyRegistrationId());
 		LogoutResponse logoutResponse = parse(serialized);
 		Saml2ResponseValidatorResult result = verifySignature(request, logoutResponse, registration)
-				.concat(validateRequest(logoutResponse, registration));
+				.concat(validateRequest(logoutResponse, registration))
+				.concat(validateLogoutRequest(logoutResponse, logoutRequest.getId()));
 		if (result.hasErrors()) {
 			throw new Saml2Exception("Failed to validate LogoutResponse: " + result.getErrors().iterator().next());
 		}
+	}
+
+	public void setLogoutRequestRepository(Saml2LogoutRequestRepository logoutRequestRepository) {
+		Assert.notNull(logoutRequestRepository, "logoutRequestRepository cannot be null");
+		this.logoutRequestRepository = logoutRequestRepository;
 	}
 
 	private LogoutResponse parse(String response) throws Saml2Exception {
@@ -169,6 +178,17 @@ public final class OpenSamlLogoutResponseHandler implements LogoutHandler {
 		}
 		return Saml2ResponseValidatorResult
 				.failure(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, "Response indicated logout failed"));
+	}
+
+	private Saml2ResponseValidatorResult validateLogoutRequest(LogoutResponse response, String id) {
+		if (response.getInResponseTo() == null) {
+			return Saml2ResponseValidatorResult.success();
+		}
+		if (response.getInResponseTo().equals(id)) {
+			return Saml2ResponseValidatorResult.success();
+		}
+		return Saml2ResponseValidatorResult.failure(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE,
+				"LogoutResponse InResponseTo doesn't match ID of associated LogoutRequest"));
 	}
 
 }

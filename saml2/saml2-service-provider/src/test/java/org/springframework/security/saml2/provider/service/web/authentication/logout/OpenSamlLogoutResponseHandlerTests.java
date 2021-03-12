@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -33,12 +34,14 @@ import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects;
+import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlSigningUtils.QueryParametersPartial;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.when;
 
@@ -51,11 +54,21 @@ public class OpenSamlLogoutResponseHandlerTests {
 
 	private final RelyingPartyRegistrationResolver resolver = mock(RelyingPartyRegistrationResolver.class);
 
+	private final Saml2LogoutRequestRepository repository = mock(Saml2LogoutRequestRepository.class);
+
 	private final OpenSamlLogoutResponseHandler handler = new OpenSamlLogoutResponseHandler(this.resolver);
+
+	@Before
+	public void setUp() {
+		this.handler.setLogoutRequestRepository(this.repository);
+	}
 
 	@Test
 	public void handleWhenAuthenticatedThenHandles() {
 		RelyingPartyRegistration registration = signing(verifying(registration())).build();
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration).id("id")
+				.build();
+		when(this.repository.removeLogoutRequest(any(), any())).thenReturn(logoutRequest);
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		sign(logoutResponse, registration);
 		Authentication authentication = authentication(registration);
@@ -67,6 +80,9 @@ public class OpenSamlLogoutResponseHandlerTests {
 	@Test
 	public void handleWhenRedirectBindingThenValidatesSignatureParameter() {
 		RelyingPartyRegistration registration = signing(verifying(registration())).build();
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration).id("id")
+				.build();
+		when(this.repository.removeLogoutRequest(any(), any())).thenReturn(logoutRequest);
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		Authentication authentication = authentication(registration);
 		MockHttpServletRequest request = redirect(logoutResponse, OpenSamlSigningUtils.sign(registration));
@@ -77,6 +93,9 @@ public class OpenSamlLogoutResponseHandlerTests {
 	@Test
 	public void handleWhenInvalidIssuerThenInvalidSignatureError() {
 		RelyingPartyRegistration registration = registration().build();
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration).id("id")
+				.build();
+		when(this.repository.removeLogoutRequest(any(), any())).thenReturn(logoutRequest);
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		logoutResponse.getIssuer().setValue("wrong");
 		sign(logoutResponse, registration);
@@ -91,6 +110,9 @@ public class OpenSamlLogoutResponseHandlerTests {
 	@Test
 	public void handleWhenMismatchedDestinationThenInvalidDestinationError() {
 		RelyingPartyRegistration registration = registration().build();
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration).id("id")
+				.build();
+		when(this.repository.removeLogoutRequest(any(), any())).thenReturn(logoutRequest);
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		logoutResponse.setDestination("wrong");
 		sign(logoutResponse, registration);
@@ -105,6 +127,9 @@ public class OpenSamlLogoutResponseHandlerTests {
 	@Test
 	public void handleWhenStatusNotSuccessThenInvalidResponseError() {
 		RelyingPartyRegistration registration = registration().build();
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration).id("id")
+				.build();
+		when(this.repository.removeLogoutRequest(any(), any())).thenReturn(logoutRequest);
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		logoutResponse.getStatus().getStatusCode().setValue(StatusCode.UNKNOWN_PRINCIPAL);
 		sign(logoutResponse, registration);
