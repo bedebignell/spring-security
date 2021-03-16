@@ -21,21 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.model.Frame;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Mount;
-import com.github.dockerjava.api.model.MountType;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
-import com.github.dockerjava.transport.DockerHttpClient;
+import com.headway.assemblies.seaview.headless.S101Headless;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
@@ -58,42 +45,9 @@ public class S101Build extends DefaultTask {
 			copyToBuildDirectory("s101/config.xml", new File(s101, "config.xml"));
 			copyToBuildDirectory("s101/repository.xml", new File(repository, "repository.xml"));
 		}
-		DockerClientConfig standard = DefaultDockerClientConfig.createDefaultConfigBuilder().build();
-		DockerHttpClient client = new ApacheDockerHttpClient.Builder()
-				.dockerHost(standard.getDockerHost())
-				.sslConfig(standard.getSSLConfig())
-				.build();
-		DockerClient dockerClient = DockerClientImpl.getInstance(standard, client);
-		Mount mount = new Mount()
-				.withType(MountType.BIND)
-				.withSource(build.getParent())
-				.withTarget("/etc/structure101");
-		HostConfig hostConfig = new HostConfig().withMounts(Arrays.asList(mount));
-		CreateContainerResponse created = dockerClient.createContainerCmd("jzheaux/structure101-build")
-				.withHostConfig(hostConfig)
-				.withWorkingDir("/etc/structure101/build/s101")
-				.withEntrypoint("sh", "-c", "java -Ds101.label=baseline -jar /opt/structure101/structure101-java-build.jar /etc/structure101/build/s101/config.xml")
-				.exec();
-		dockerClient.startContainerCmd(created.getId()).exec();
-		ResultCallback.Adapter<Frame> logs = dockerClient.logContainerCmd(created.getId())
-				.withStdOut(true)
-				.withStdErr(true)
-				.withFollowStream(true)
-				.withTailAll()
-				.exec(new ResultCallback.Adapter<Frame>() {
-					@Override
-					public void onNext(Frame item) {
-						S101Build.this.getLogger().info(item.toString());
-					}
-				});
-		try {
-			logs.awaitCompletion(2, TimeUnit.MINUTES);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		} finally {
-			dockerClient.startContainerCmd(created.getId()).exec();
-			dockerClient.removeContainerCmd(created.getId()).exec();
-		}
+		System.setProperty("s101.label", "baseline");
+		S101Headless.headlessRunner(new String[] { new File(s101, "config.xml").getAbsolutePath(),
+			"-licensedirectory=" + System.getProperty("user.home") + "/.Structure101/java"});
 	}
 
 	private void copyToBuildDirectory(String templateLocation, File destination) {

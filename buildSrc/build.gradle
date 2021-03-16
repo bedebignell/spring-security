@@ -1,6 +1,7 @@
 apply plugin: "java-gradle-plugin"
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 }
 
@@ -23,10 +24,11 @@ gradlePlugin {
 
 dependencies {
 	compile 'com.thaiopensource:trang:20091111'
-	compile 'net.sourceforge.saxon:saxon:9.1.0.8'
+	//compile 'net.sourceforge.saxon:saxon:9.1.0.8'
 	compile 'org.springframework:spring-core:5.3.1'
 	compile 'com.github.docker-java:docker-java-core:3.2.7'
 	compile 'com.github.docker-java:docker-java-transport-httpclient5:3.2.7'
+	compile 'com.structure101:structure101-java-build:6.0.16532'
 }
 
 task ide(type: Copy)  {
