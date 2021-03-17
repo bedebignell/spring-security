@@ -16,45 +16,26 @@
   <property name="show-needs-to-compile" value="false" />
   <classpath>
     <classpathentry kind="lib" path="../acl/build/classes/java/main" module="spring-security-acl" />
-    <classpathentry kind="lib" path="../acl/build/classes/kotlin/main" module="spring-security-acl" />
-	<classpathentry kind="lib" path="../aspects/build/classes/java/main" module="spring-security-aspects" />
-	<classpathentry kind="lib" path="../aspects/build/classes/kotlin/main" module="spring-security-aspects" />
+	<classpathentry kind="lib" path="../aspects/build/classes/aspectj/main" module="spring-security-aspects" />
 	<classpathentry kind="lib" path="../cas/build/classes/java/main" module="spring-security-cas" />
-	<classpathentry kind="lib" path="../cas/build/classes/kotlin/main" module="spring-security-cas" />
 	<classpathentry kind="lib" path="../config/build/classes/java/main" module="spring-security-config" />
 	<classpathentry kind="lib" path="../config/build/classes/kotlin/main" module="spring-security-config" />
 	<classpathentry kind="lib" path="../core/build/classes/java/main" module="spring-security-core" />
-	<classpathentry kind="lib" path="../core/build/classes/kotlin/main" module="spring-security-core" />
 	<classpathentry kind="lib" path="../crypto/build/classes/java/main" module="spring-security-crypto" />
-	<classpathentry kind="lib" path="../crypto/build/classes/kotlin/main" module="spring-security-crypto" />
 	<classpathentry kind="lib" path="../data/build/classes/java/main" module="spring-security-data" />
-	<classpathentry kind="lib" path="../data/build/classes/kotlin/main" module="spring-security-data" />
 	<classpathentry kind="lib" path="../ldap/build/classes/java/main" module="spring-security-ldap" />
-	<classpathentry kind="lib" path="../ldap/build/classes/kotlin/main" module="spring-security-ldap" />
 	<classpathentry kind="lib" path="../messaging/build/classes/java/main" module="spring-security-messaging" />
-	<classpathentry kind="lib" path="../messaging/build/classes/kotlin/main" module="spring-security-messaging" />
 	<classpathentry kind="lib" path="../oauth2/oauth2-core/build/classes/java/main" module="spring-security-oauth2-core" />
-	<classpathentry kind="lib" path="../oauth2/oauth2-core/build/classes/kotlin/main" module="spring-security-oauth2-core" />
 	<classpathentry kind="lib" path="../oauth2/oauth2-jose/build/classes/java/main" module="spring-security-oauth2-jose" />
-	<classpathentry kind="lib" path="../oauth2/oauth2-jose/build/classes/kotlin/main" module="spring-security-oauth2-jose" />
 	<classpathentry kind="lib" path="../oauth2/oauth2-client/build/classes/java/main" module="spring-security-oauth2-client" />
-	<classpathentry kind="lib" path="../oauth2/oauth2-client/build/classes/kotlin/main" module="spring-security-oauth2-client" />
 	<classpathentry kind="lib" path="../oauth2/oauth2-resource-server/build/classes/java/main" module="spring-security-oauth2-resource-server" />
-	<classpathentry kind="lib" path="../oauth2/oauth2-resource-server/build/classes/kotlin/main" module="spring-security-oauth2-resource-server" />
 	<classpathentry kind="lib" path="../openid/build/classes/java/main" module="spring-security-openid" />
-	<classpathentry kind="lib" path="../openid/build/classes/kotlin/main" module="spring-security-openid" />
 	<classpathentry kind="lib" path="../remoting/build/classes/java/main" module="spring-security-remoting" />
-	<classpathentry kind="lib" path="../remoting/build/classes/kotlin/main" module="spring-security-remoting" />
 	<classpathentry kind="lib" path="../rsocket/build/classes/java/main" module="spring-security-rsocket" />
-	<classpathentry kind="lib" path="../rsocket/build/classes/kotlin/main" module="spring-security-rsocket" />
 	<classpathentry kind="lib" path="../saml2/saml2-service-provider/build/classes/java/main" module="spring-security-saml2-service-provider" />
-	<classpathentry kind="lib" path="../saml2/saml2-service-provider/build/classes/kotlin/main" module="spring-security-saml2-service-provider" />
 	<classpathentry kind="lib" path="../taglibs/build/classes/java/main" module="spring-security-taglibs" />
-	<classpathentry kind="lib" path="../taglibs/build/classes/kotlin/main" module="spring-security-taglibs" />
 	<classpathentry kind="lib" path="../test/build/classes/java/main" module="spring-security-test" />
-	<classpathentry kind="lib" path="../test/build/classes/kotlin/main" module="spring-security-test" />
 	<classpathentry kind="lib" path="../web/build/classes/java/main" module="spring-security-web" />
-	<classpathentry kind="lib" path="../web/build/classes/kotlin/main" module="spring-security-web" />
   </classpath>
   <pom-root-files />
   <modules-in-scope />

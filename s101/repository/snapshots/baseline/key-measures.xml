@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<KeyMeasureData formatVersion="2" specViolationDependencies="0" specViolationContainers="0" specItemViolations="0" specDependencyViolatingItems="0" biggestUnspecifiedNumber="0" specCoverage="0.0" feedbackDependencies="28" tangledDesign="1" tanglePercentage="20.0" biggestClassTangle="3" fatPackage="1" fatClass="5" fatMethod="9" fatPercentage="17.0" numDiagrams="0" numDiagramDependencyViolations="0" numDiagramDependencyViolatingItems="0" numUnassociatedItems="0" numDiagramViolationContainers="0" totalProblemDependencies="28" comparedTo="recent">
+<KeyMeasureData formatVersion="2" specViolationDependencies="0" specViolationContainers="0" specItemViolations="0" specDependencyViolatingItems="0" biggestUnspecifiedNumber="0" specCoverage="0.0" feedbackDependencies="33" tangledDesign="2" tanglePercentage="21.0" biggestClassTangle="3" fatPackage="1" fatClass="5" fatMethod="9" fatPercentage="16.0" numDiagrams="0" numDiagramDependencyViolations="0" numDiagramDependencyViolatingItems="0" numUnassociatedItems="0" numDiagramViolationContainers="0" totalProblemDependencies="33" comparedTo="recent">
     <numberStatistics>
         <number name="formatVersion" count="2.0" delta="0.0"/>
         <number name="specViolationDependencies" count="0.0" delta="0.0"/>
@@ -8,30 +8,30 @@
         <number name="specDependencyViolatingItems" count="0.0" delta="0.0"/>
         <number name="biggestUnspecifiedNumber" count="0.0" delta="0.0"/>
         <number name="specCoverage" count="0.0" delta="0.0"/>
-        <number name="feedbackDependencies" count="28.0" delta="0.0"/>
-        <number name="tangledDesign" count="1.0" delta="0.0"/>
-        <number name="tanglePercentage" count="20.0" delta="0.0"/>
+        <number name="feedbackDependencies" count="33.0" delta="5.0"/>
+        <number name="tangledDesign" count="2.0" delta="1.0"/>
+        <number name="tanglePercentage" count="21.0" delta="1.0"/>
         <number name="biggestClassTangle" count="3.0" delta="0.0"/>
         <number name="fatPackage" count="1.0" delta="0.0"/>
         <number name="fatClass" count="5.0" delta="0.0"/>
         <number name="fatMethod" count="9.0" delta="0.0"/>
-        <number name="fatPercentage" count="17.0" delta="0.0"/>
+        <number name="fatPercentage" count="16.0" delta="-1.0"/>
         <number name="numDiagrams" count="0.0" delta="0.0"/>
         <number name="numDiagramDependencyViolations" count="0.0" delta="0.0"/>
         <number name="numDiagramDependencyViolatingItems" count="0.0" delta="0.0"/>
         <number name="numUnassociatedItems" count="0.0" delta="0.0"/>
         <number name="numDiagramViolationContainers" count="0.0" delta="0.0"/>
-        <number name="totalProblemDependencies" count="28.0" delta="0.0"/>
+        <number name="totalProblemDependencies" count="33.0" delta="5.0"/>
     </numberStatistics>
     <listStatistics>
-        <list name="tangledDesign" count="1.0" countSum="28.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
+        <list name="tangledDesign" count="2.0" countSum="33.0" added="1.0" addedSum="5.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
         <list name="fatPackage" count="1.0" countSum="162.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
-        <list name="fatClass" count="5.0" countSum="854.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
+        <list name="fatClass" count="5.0" countSum="855.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="1.0" increasedSum="1.0" decreased="0.0" decreasedSum="0.0" changed="1.0" changedSum="1.0"/>
         <list name="fatMethod" count="9.0" countSum="180.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
         <list name="specViolationContainers" count="0.0" countSum="0.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
         <list name="specViolationDependencies" count="0.0" countSum="0.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
         <list name="specItemViolations" count="0.0" countSum="0.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
-        <list name="feedbackDependencies" count="1.0" countSum="28.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
+        <list name="feedbackDependencies" count="2.0" countSum="33.0" added="1.0" addedSum="5.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
         <list name="biggestClassTangle" count="3.0" countSum="1446.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
         <list name="archViolationContainers" count="0.0" countSum="0.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
         <list name="archViolations" count="0.0" countSum="0.0" added="0.0" addedSum="0.0" removed="0.0" removedSum="0.0" increased="0.0" increasedSum="0.0" decreased="0.0" decreasedSum="0.0" changed="0.0" changedSum="0.0"/>
@@ -42,127 +42,141 @@
     <specOverlays/>
     <archOverlays/>
     <tangledDesign>
-        <node id="18026" measure="28" measureDelta="0" impact="37753" threshold="0.0" state="3"/>
+        <node id="18457" measure="5" measureDelta="5" impact="2640" threshold="0.0" state="0"/>
+        <node id="18353" measure="28" measureDelta="0" impact="38541" threshold="0.0" state="3"/>
     </tangledDesign>
     <fatPackage>
-        <node id="18057" measure="162" measureDelta="0" impact="20306" threshold="120.0" state="3"/>
+        <node id="18384" measure="162" measureDelta="0" impact="20307" threshold="120.0" state="3"/>
     </fatPackage>
     <fatClass>
-        <node id="381" measure="128" measureDelta="0" impact="1297" threshold="120.0" state="3"/>
-        <node id="64" measure="130" measureDelta="0" impact="1164" threshold="120.0" state="3"/>
-        <node id="557" measure="133" measureDelta="0" impact="1577" threshold="120.0" state="3"/>
-        <node id="83" measure="212" measureDelta="0" impact="2255" threshold="120.0" state="3"/>
-        <node id="77" measure="251" measureDelta="0" impact="4687" threshold="120.0" state="3"/>
+        <node id="395" measure="128" measureDelta="0" impact="1297" threshold="120.0" state="3"/>
+        <node id="68" measure="130" measureDelta="0" impact="1164" threshold="120.0" state="3"/>
+        <node id="578" measure="134" measureDelta="1" impact="1625" threshold="120.0" state="2"/>
+        <node id="87" measure="212" measureDelta="0" impact="2255" threshold="120.0" state="3"/>
+        <node id="81" measure="251" measureDelta="0" impact="4642" threshold="120.0" state="3"/>
     </fatClass>
     <fatMethod>
-        <node id="5906" measure="16" measureDelta="0" impact="137" threshold="15.0" state="3"/>
-        <node id="12544" measure="16" measureDelta="0" impact="109" threshold="15.0" state="3"/>
-        <node id="13377" measure="16" measureDelta="0" impact="199" threshold="15.0" state="3"/>
-        <node id="11904" measure="19" measureDelta="0" impact="168" threshold="15.0" state="3"/>
-        <node id="16240" measure="19" measureDelta="0" impact="283" threshold="15.0" state="3"/>
-        <node id="12565" measure="19" measureDelta="0" impact="362" threshold="15.0" state="3"/>
-        <node id="7342" measure="24" measureDelta="0" impact="370" threshold="15.0" state="3"/>
-        <node id="8682" measure="25" measureDelta="0" impact="292" threshold="15.0" state="3"/>
-        <node id="13104" measure="26" measureDelta="0" impact="365" threshold="15.0" state="3"/>
+        <node id="6022" measure="16" measureDelta="0" impact="137" threshold="15.0" state="3"/>
+        <node id="12788" measure="16" measureDelta="0" impact="109" threshold="15.0" state="3"/>
+        <node id="13633" measure="16" measureDelta="0" impact="199" threshold="15.0" state="3"/>
+        <node id="12134" measure="19" measureDelta="0" impact="168" threshold="15.0" state="3"/>
+        <node id="16548" measure="19" measureDelta="0" impact="283" threshold="15.0" state="3"/>
+        <node id="12809" measure="19" measureDelta="0" impact="362" threshold="15.0" state="3"/>
+        <node id="7481" measure="24" measureDelta="0" impact="370" threshold="15.0" state="3"/>
+        <node id="8852" measure="25" measureDelta="0" impact="292" threshold="15.0" state="3"/>
+        <node id="13356" measure="26" measureDelta="0" impact="370" threshold="15.0" state="3"/>
     </fatMethod>
     <specViolationContainers/>
     <specViolationDependencies/>
     <specItemViolations/>
     <feedbackDependencies>
-        <edge from="18025" to="18079" weight="28" weightDelta="0" state="3"/>
+        <edge from="18352" to="18406" weight="28" weightDelta="0" state="3"/>
+        <edge from="18480" to="18456" weight="5" weightDelta="5" state="0"/>
     </feedbackDependencies>
     <biggestClassTangle>
-        <node id="1948" measure="350" measureDelta="0" state="3"/>
-        <node id="2432" measure="365" measureDelta="0" state="3"/>
-        <node id="1585" measure="731" measureDelta="0" state="3"/>
+        <node id="1999" measure="350" measureDelta="0" state="3"/>
+        <node id="2498" measure="365" measureDelta="0" state="3"/>
+        <node id="1629" measure="731" measureDelta="0" state="3"/>
     </biggestClassTangle>
     <archViolationContainers/>
     <archViolations/>
     <unassociatedItems/>
     <nodeMap>
         <entry>
-            <key>12544</key>
-            <value realName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean" type="method" localSize="109" size="109" displayName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean" navigationName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean"/>
-        </entry>
-        <entry>
-            <key>11904</key>
-            <value realName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String" type="method" localSize="168" size="168" displayName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String" navigationName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String"/>
-        </entry>
-        <entry>
-            <key>64</key>
-            <value realName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction" type="class" localSize="1" size="1164" displayName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction" navigationName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction"/>
-        </entry>
-        <entry>
-            <key>2432</key>
-            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer" type="class" localSize="1" size="365" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer"/>
-        </entry>
-        <entry>
-            <key>13377</key>
+            <key>13633</key>
             <value realName="spring-security-crypto.org.springframework.security.crypto.bcrypt.BCrypt.hashpw(byte[], java.lang.String):java.lang.String" type="method" localSize="199" size="199" displayName="spring-security-crypto.org.springframework.security.crypto.bcrypt.BCrypt.hashpw(byte[], java.lang.String):java.lang.String" navigationName="spring-security-crypto.org.springframework.security.crypto.bcrypt.BCrypt.hashpw(byte[], java.lang.String):java.lang.String"/>
         </entry>
         <entry>
-            <key>18025</key>
-            <value realName="spring-security-config.org.springframework.security.config.annotation" type="package" localSize="0" size="19448" displayName="spring-security-config.org.springframework.security.config.annotation" navigationName="spring-security-config.org.springframework.security.config.annotation"/>
+            <key>578</key>
+            <value realName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider" type="class" localSize="1" size="1625" displayName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider" navigationName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider"/>
         </entry>
         <entry>
-            <key>18057</key>
-            <value realName="spring-security-oauth2-client.org.springframework.security.oauth2.client" type="package" localSize="0" size="20306" displayName="spring-security-oauth2-client.org.springframework.security.oauth2.client" navigationName="spring-security-oauth2-client.org.springframework.security.oauth2.client"/>
+            <key>2498</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer" type="class" localSize="1" size="365" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer"/>
         </entry>
         <entry>
-            <key>8682</key>
-            <value realName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain" type="method" localSize="292" size="292" displayName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain" navigationName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain"/>
-        </entry>
-        <entry>
-            <key>18026</key>
-            <value realName="spring-security-config.org.springframework.security.config" type="package" localSize="0" size="55196" displayName="spring-security-config.org.springframework.security.config" navigationName="spring-security-config.org.springframework.security.config"/>
-        </entry>
-        <entry>
-            <key>557</key>
-            <value realName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider" type="class" localSize="1" size="1577" displayName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider" navigationName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider"/>
-        </entry>
-        <entry>
-            <key>77</key>
-            <value realName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity" type="class" localSize="1" size="4687" displayName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity" navigationName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity"/>
-        </entry>
-        <entry>
-            <key>7342</key>
-            <value realName="spring-security-config.org.springframework.security.config.web.servlet.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void" type="method" localSize="370" size="370" displayName="spring-security-config.org.springframework.security.config.web.servlet.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void" navigationName="spring-security-config.org.springframework.security.config.web.servlet.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void"/>
-        </entry>
-        <entry>
-            <key>16240</key>
+            <key>16548</key>
             <value realName="spring-security-config.org.springframework.security.config.web.server.ServerHeadersDsl$get$1.invoke(org.springframework.security.config.web.server.ServerHttpSecurity$HeaderSpec):void" type="method" localSize="283" size="283" displayName="spring-security-config.org.springframework.security.config.web.server.ServerHeadersDsl$get$1.invoke(org.springframework.security.config.web.server.ServerHttpSecurity$HeaderSpec):void" navigationName="spring-security-config.org.springframework.security.config.web.server.ServerHeadersDsl$get$1.invoke(org.springframework.security.config.web.server.ServerHttpSecurity$HeaderSpec):void"/>
         </entry>
         <entry>
-            <key>13104</key>
-            <value realName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void" type="method" localSize="365" size="365" displayName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void" navigationName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void"/>
+            <key>68</key>
+            <value realName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction" type="class" localSize="1" size="1164" displayName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction" navigationName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction"/>
         </entry>
         <entry>
-            <key>1585</key>
-            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer" type="class" localSize="1" size="731" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer"/>
+            <key>18406</key>
+            <value realName="spring-security-config.org.springframework.security.config.web" type="package" localSize="0" size="18716" displayName="spring-security-config.org.springframework.security.config.web" navigationName="spring-security-config.org.springframework.security.config.web"/>
         </entry>
         <entry>
-            <key>5906</key>
+            <key>6022</key>
             <value realName="spring-security-core.org.springframework.security.authentication.ProviderManager.authenticate(org.springframework.security.core.Authentication):org.springframework.security.core.Authentication" type="method" localSize="137" size="137" displayName="spring-security-core.org.springframework.security.authentication.ProviderManager.authenticate(org.springframework.security.core.Authentication):org.springframework.security.core.Authentication" navigationName="spring-security-core.org.springframework.security.authentication.ProviderManager.authenticate(org.springframework.security.core.Authentication):org.springframework.security.core.Authentication"/>
         </entry>
         <entry>
-            <key>83</key>
-            <value realName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder" type="class" localSize="1" size="2255" displayName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder" navigationName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder"/>
+            <key>12134</key>
+            <value realName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String" type="method" localSize="168" size="168" displayName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String" navigationName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String"/>
         </entry>
         <entry>
-            <key>12565</key>
+            <key>12809</key>
             <value realName="spring-security-config.org.springframework.security.config.web.servlet.OAuth2LoginDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer):void" type="method" localSize="362" size="362" displayName="spring-security-config.org.springframework.security.config.web.servlet.OAuth2LoginDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer):void" navigationName="spring-security-config.org.springframework.security.config.web.servlet.OAuth2LoginDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer):void"/>
         </entry>
         <entry>
-            <key>1948</key>
-            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer" type="class" localSize="1" size="350" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer"/>
-        </entry>
-        <entry>
-            <key>381</key>
+            <key>395</key>
             <value realName="spring-security-core.org.springframework.security.provisioning.JdbcUserDetailsManager" type="class" localSize="1" size="1297" displayName="spring-security-core.org.springframework.security.provisioning.JdbcUserDetailsManager" navigationName="spring-security-core.org.springframework.security.provisioning.JdbcUserDetailsManager"/>
         </entry>
         <entry>
-            <key>18079</key>
-            <value realName="spring-security-config.org.springframework.security.config.web" type="package" localSize="0" size="18305" displayName="spring-security-config.org.springframework.security.config.web" navigationName="spring-security-config.org.springframework.security.config.web"/>
+            <key>13356</key>
+            <value realName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void" type="method" localSize="370" size="370" displayName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void" navigationName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void"/>
+        </entry>
+        <entry>
+            <key>1999</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer" type="class" localSize="1" size="350" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer"/>
+        </entry>
+        <entry>
+            <key>18352</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation" type="package" localSize="0" size="19825" displayName="spring-security-config.org.springframework.security.config.annotation" navigationName="spring-security-config.org.springframework.security.config.annotation"/>
+        </entry>
+        <entry>
+            <key>18480</key>
+            <value realName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource.authentication" type="package" localSize="0" size="1407" displayName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource.authentication" navigationName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource.authentication"/>
+        </entry>
+        <entry>
+            <key>18384</key>
+            <value realName="spring-security-oauth2-client.org.springframework.security.oauth2.client" type="package" localSize="0" size="20307" displayName="spring-security-oauth2-client.org.springframework.security.oauth2.client" navigationName="spring-security-oauth2-client.org.springframework.security.oauth2.client"/>
+        </entry>
+        <entry>
+            <key>81</key>
+            <value realName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity" type="class" localSize="1" size="4642" displayName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity" navigationName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity"/>
+        </entry>
+        <entry>
+            <key>18353</key>
+            <value realName="spring-security-config.org.springframework.security.config" type="package" localSize="0" size="55889" displayName="spring-security-config.org.springframework.security.config" navigationName="spring-security-config.org.springframework.security.config"/>
+        </entry>
+        <entry>
+            <key>12788</key>
+            <value realName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean" type="method" localSize="109" size="109" displayName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean" navigationName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean"/>
+        </entry>
+        <entry>
+            <key>8852</key>
+            <value realName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain" type="method" localSize="292" size="292" displayName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain" navigationName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain"/>
+        </entry>
+        <entry>
+            <key>87</key>
+            <value realName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder" type="class" localSize="1" size="2255" displayName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder" navigationName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder"/>
+        </entry>
+        <entry>
+            <key>18456</key>
+            <value realName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource.web" type="package" localSize="0" size="1233" displayName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource.web" navigationName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource.web"/>
+        </entry>
+        <entry>
+            <key>7481</key>
+            <value realName="spring-security-config.org.springframework.security.config.web.servlet.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void" type="method" localSize="370" size="370" displayName="spring-security-config.org.springframework.security.config.web.servlet.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void" navigationName="spring-security-config.org.springframework.security.config.web.servlet.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void"/>
+        </entry>
+        <entry>
+            <key>18457</key>
+            <value realName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource" type="package" localSize="0" size="3853" displayName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource" navigationName="spring-security-oauth2-resource-server.org.springframework.security.oauth2.server.resource"/>
+        </entry>
+        <entry>
+            <key>1629</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer" type="class" localSize="1" size="731" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer"/>
         </entry>
     </nodeMap>
 </KeyMeasureData>
