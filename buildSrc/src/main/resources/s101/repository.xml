@@ -8,7 +8,7 @@
     <entry metric="Fat" scope="method" threshold="15" color="51,255,51" />
   </xs-configuration>
   <!--Note: All date strings are stored in short US format e.g. 2/1/06 for 1st Feb 2006-->
-  <project name="project" dir="project" baselineSnapshot="default" version="16532">
+  <project name="snapshots" dir="snapshots" baselineSnapshot="default" version="16532">
     <snapshot label="baseline" location="baseline" timestamp="3/16/21, 4:42 PM" version="16532" detail="true" good="true" size="20" />
   </project>
 </structure101-repository>

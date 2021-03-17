@@ -32,30 +32,57 @@ import org.springframework.core.io.Resource;
 public class S101Build extends DefaultTask {
 	@TaskAction
 	public void build() {
-		File build = getProject().getBuildDir();
-		doApply(build);
+		doApply();
 	}
 
-	private void doApply(File build) {
-		File s101 = new File(build, "s101");
-		File repository = new File(s101, "repository");
-		File project = new File(repository, "project");
-		if (project.mkdirs()) {
-			copyToBuildDirectory("s101/project.java.hsp", new File(s101, "project.java.hsp"));
-			copyToBuildDirectory("s101/config.xml", new File(s101, "config.xml"));
-			copyToBuildDirectory("s101/repository.xml", new File(repository, "repository.xml"));
+	private void doApply() {
+		File s101 = getStructure101Path();
+		if (!s101.exists()) {
+			throw new IllegalStateException("Structure101 needs to know the structure of your snapshots in order to run. " +
+					"Please indicate the directory containing your project's *.hsp file using the s101Directory property");
 		}
-		System.setProperty("s101.label", "baseline");
-		S101Headless.headlessRunner(new String[] { new File(s101, "config.xml").getAbsolutePath(),
-			"-licensedirectory=" + System.getProperty("user.home") + "/.Structure101/java"});
+		File config = new File(s101, "config.xml");
+		if (!config.exists()) {
+			copyToProject("s101/config.xml", new File(s101, "config.xml"));
+			File repository = new File(s101, "repository");
+			File snapshots = new File(repository, "snapshots");
+			if (!snapshots.exists() && !snapshots.mkdirs()) {
+				throw new IllegalStateException("Unable to create snapshots directory");
+			}
+			copyToProject("s101/repository.xml", new File(repository, "repository.xml"));
+			System.setProperty("s101.label", "baseline");
+		} else {
+			System.setProperty("s101.label", "recent");
+		}
+		if (getProject().hasProperty("s101.label")) {
+			String label = (String) getProject().property("s101.label");
+			System.setProperty("s101.label", label);
+		}
+		String licenseDirectoryProperty = "-licensedirectory=" + getLicenseDirectory();
+		S101Headless.headlessRunner(new String[]{config.getAbsolutePath(), licenseDirectoryProperty});
 	}
 
-	private void copyToBuildDirectory(String templateLocation, File destination) {
+	private void copyToProject(String templateLocation, File destination) {
 		Resource template = new ClassPathResource(templateLocation);
 		try (InputStream is = template.getInputStream()) { // change to read in as template
 			Files.copy(is, destination.toPath());
 		} catch (IOException ex) {
 			throw new UncheckedIOException(ex);
 		}
+	}
+
+	private File getStructure101Path() {
+		if (getProject().hasProperty("s101Directory")) {
+			String property = (String) getProject().property("s101Directory");
+			return new File(property);
+		}
+		return new File(getProject().getProjectDir(), "s101");
+	}
+
+	private String getLicenseDirectory() {
+		if (getProject().hasProperty("s101.licensedirectory")) {
+			return (String) getProject().property("s101.licensedirectory");
+		}
+		return System.getProperty("user.home") + "/.Structure101/java";
 	}
 }
