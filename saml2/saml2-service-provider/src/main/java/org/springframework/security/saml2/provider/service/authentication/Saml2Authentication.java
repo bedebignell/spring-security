@@ -49,7 +49,8 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 	 * @param principal the logged in user
 	 * @param saml2Response the SAML 2.0 response used to authenticate the user
 	 * @param authorities the authorities for the logged in user
-	 * @deprecated Use other constructor instead
+	 * @deprecated Use
+	 * {@link #Saml2Authentication(AuthenticatedPrincipal, String, Collection, String)}
 	 */
 	@Deprecated
 	public Saml2Authentication(AuthenticatedPrincipal principal, String saml2Response,

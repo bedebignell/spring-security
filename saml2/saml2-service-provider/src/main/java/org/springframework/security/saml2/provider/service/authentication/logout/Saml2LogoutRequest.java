@@ -62,7 +62,8 @@ public final class Saml2LogoutRequest implements Serializable {
 	}
 
 	/**
-	 * Get the location of the asserting party's SingleLogoutService
+	 * Get the location of the asserting party's <a href=
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
 	 * @return the SingleLogoutService location
 	 */
 	public String getLocation() {
@@ -70,7 +71,8 @@ public final class Saml2LogoutRequest implements Serializable {
 	}
 
 	/**
-	 * Get the binding for the asserting party's SingleLogoutService
+	 * Get the binding for the asserting party's <a href=
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
 	 * @return the SingleLogoutService binding
 	 */
 	public Saml2MessageBinding getBinding() {
@@ -96,8 +98,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	/**
 	 * Get the {@code name} parameter
 	 *
-	 * Useful when specifying additional query parameters for the SingleLogoutService
-	 * request
+	 * Useful when specifying additional query parameters for the Logout Request
 	 * @param name the parameter's name
 	 * @return the parameter's value
 	 */
@@ -108,8 +109,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	/**
 	 * Get all parameters
 	 *
-	 * Useful when specifying additional query parameters for the SingleLogoutService
-	 * request
+	 * Useful when specifying additional query parameters for the Logout Request
 	 * @return
 	 */
 	public Map<String, String> getParameters() {
@@ -128,8 +128,9 @@ public final class Saml2LogoutRequest implements Serializable {
 	/**
 	 * Create a {@link Builder} instance from this {@link RelyingPartyRegistration}
 	 *
-	 * Specifically, this will pull the SingleLogoutService location and binding from the
-	 * {@link RelyingPartyRegistration}
+	 * Specifically, this will pull the <a href=
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
+	 * location and binding from the {@link RelyingPartyRegistration}
 	 * @param registration the {@link RelyingPartyRegistration} to use
 	 * @return the {@link Builder} for further configurations
 	 */
@@ -150,7 +151,12 @@ public final class Saml2LogoutRequest implements Serializable {
 		}
 
 		/**
-		 * Use this signed and serialized &lt;saml2:LogoutRequest&gt;
+		 * Use this signed and serialized and Base64-encoded &lt;saml2:LogoutRequest&gt;
+		 *
+		 * Note that if using the Redirect binding, the value should be
+		 * {@link java.util.zip.DeflaterOutputStream deflated} and then Base64-encoded.
+		 *
+		 * It should not be URL-encoded as this will be done when the request is sent
 		 * @param samlRequest the &lt;saml2:LogoutRequest&gt; to use
 		 * @return the {@link Builder} for further configurations
 		 * @see Saml2LogoutRequestResolver
@@ -163,6 +169,8 @@ public final class Saml2LogoutRequest implements Serializable {
 		/**
 		 * Use this value for the relay state when sending the Logout Request to the
 		 * asserting party
+		 *
+		 * It should not be URL-encoded as this will be done when the request is sent
 		 * @param relayState the relay state
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -183,6 +191,9 @@ public final class Saml2LogoutRequest implements Serializable {
 
 		/**
 		 * Use this {@link Consumer} to modify the set of query parameters
+		 *
+		 * No parameter should be URL-encoded as this will be done when the request is
+		 * sent
 		 * @param parametersConsumer the {@link Consumer}
 		 * @return the {@link Builder} for further configurations
 		 */

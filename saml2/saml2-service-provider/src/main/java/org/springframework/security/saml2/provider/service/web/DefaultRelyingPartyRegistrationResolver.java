@@ -41,8 +41,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Josh Cummings
  * @since 5.4
  */
-public final class DefaultRelyingPartyRegistrationResolver
-		implements Converter<HttpServletRequest, RelyingPartyRegistration>, RelyingPartyRegistrationResolver {
+public final class DefaultRelyingPartyRegistrationResolver implements RelyingPartyRegistrationResolver {
 
 	private static final char PATH_DELIMITER = '/';
 
@@ -54,14 +53,6 @@ public final class DefaultRelyingPartyRegistrationResolver
 			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
 		Assert.notNull(relyingPartyRegistrationRepository, "relyingPartyRegistrationRepository cannot be null");
 		this.relyingPartyRegistrationRepository = relyingPartyRegistrationRepository;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public RelyingPartyRegistration convert(HttpServletRequest request) {
-		return resolve(request, null);
 	}
 
 	/**
