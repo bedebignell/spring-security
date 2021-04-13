@@ -44,7 +44,7 @@ import org.springframework.util.Assert;
  * contains a specified authority from the JSR-250 security annotations.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
 public final class Jsr250AuthorizationManager implements AuthorizationManager<MethodInvocation> {
 

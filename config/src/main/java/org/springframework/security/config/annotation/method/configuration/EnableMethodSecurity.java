@@ -31,7 +31,7 @@ import org.springframework.security.access.annotation.Secured;
 /**
  * Enables Spring Security Method Security.
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

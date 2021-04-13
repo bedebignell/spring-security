@@ -33,7 +33,7 @@ import org.springframework.security.core.Authentication;
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
- * @since 5.5
+ * @since 5.6
  */
 public final class DelegatingAuthorizationMethodInterceptor implements AuthorizationMethodInterceptor {
 

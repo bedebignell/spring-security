@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
  * from the {@link PostAuthorize} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
 public final class PostAuthorizeAuthorizationManager implements AfterMethodAuthorizationManager<MethodInvocation> {
 

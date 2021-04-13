@@ -28,7 +28,7 @@ import org.springframework.context.annotation.AutoProxyRegistrar;
  * annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
 final class MethodSecuritySelector extends AdviceModeImportSelector<EnableMethodSecurity> {
 

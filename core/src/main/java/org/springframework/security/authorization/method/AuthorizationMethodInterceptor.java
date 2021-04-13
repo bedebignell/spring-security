@@ -35,7 +35,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
- * @since 5.5
+ * @since 5.6
  */
 public interface AuthorizationMethodInterceptor extends MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 

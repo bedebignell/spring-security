@@ -36,7 +36,7 @@ import org.springframework.security.core.Authentication;
  * contains a specified authority from the Spring Security's {@link Secured} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
 public final class SecuredAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 

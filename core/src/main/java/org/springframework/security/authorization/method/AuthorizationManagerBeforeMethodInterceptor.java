@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
- * @since 5.5
+ * @since 5.6
  */
 public final class AuthorizationManagerBeforeMethodInterceptor implements AuthorizationMethodInterceptor {
 

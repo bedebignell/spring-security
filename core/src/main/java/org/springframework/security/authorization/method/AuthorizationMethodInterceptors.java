@@ -28,7 +28,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
  * A static factory for constructing common {@link AuthorizationMethodInterceptor}s
  *
  * @author Josh Cummings
- * @since 5.5
+ * @since 5.6
  * @see PreAuthorizeAuthorizationManager
  * @see PostAuthorizeAuthorizationManager
  * @see SecuredAuthorizationManager

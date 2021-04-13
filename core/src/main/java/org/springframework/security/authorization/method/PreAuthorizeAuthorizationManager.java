@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
  * {@link PreAuthorize} annotation.
  *
  * @author Evgeniy Cheban
- * @since 5.5
+ * @since 5.6
  */
 public final class PreAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 

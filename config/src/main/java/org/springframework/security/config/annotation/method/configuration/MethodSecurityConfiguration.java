@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
  * @author Evgeniy Cheban
  * @author Josh Cummings
  * @see EnableMethodSecurity
- * @since 5.5
+ * @since 5.6
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
