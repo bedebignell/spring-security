@@ -61,7 +61,8 @@ public class PostAuthorizeAuthorizationManagerTests {
 		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
 				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, null);
+		MethodInvocationReturnValue result = new MethodInvocationReturnValue(methodInvocation, null);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNull();
 	}
 
@@ -72,7 +73,8 @@ public class PostAuthorizeAuthorizationManagerTests {
 		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
 				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, null);
+		MethodInvocationReturnValue result = new MethodInvocationReturnValue(methodInvocation, null);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -83,8 +85,9 @@ public class PostAuthorizeAuthorizationManagerTests {
 				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
 		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
 				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
+		MethodInvocationReturnValue result = new MethodInvocationReturnValue(methodInvocation, null);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, null);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -96,8 +99,9 @@ public class PostAuthorizeAuthorizationManagerTests {
 				"doSomethingList", new Class[] { List.class }, new Object[] { list });
 		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
 				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
+		MethodInvocationReturnValue result = new MethodInvocationReturnValue(methodInvocation, list);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, list);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -109,8 +113,9 @@ public class PostAuthorizeAuthorizationManagerTests {
 				"doSomethingList", new Class[] { List.class }, new Object[] { list });
 		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
 				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
+		MethodInvocationReturnValue result = new MethodInvocationReturnValue(methodInvocation, list);
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation, list);
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}

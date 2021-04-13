@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  * @author Evgeniy Cheban
  * @since 5.6
  */
-public final class PostAuthorizeAuthorizationManager implements AfterMethodAuthorizationManager<MethodInvocation> {
+public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationReturnValue> {
 
 	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
@@ -63,20 +63,20 @@ public final class PostAuthorizeAuthorizationManager implements AfterMethodAutho
 	 * evaluating the {@link PostAuthorize} annotation that the
 	 * {@link AuthorizationMethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param mi the {@link AuthorizationMethodInvocation} to check
-	 * @param returnedObject the returned object to check
+	 * @param mi the {@link MethodInvocationReturnValue} to check
 	 * @return an {@link AuthorizationDecision} or {@code null} if the
 	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi,
-			Object returnedObject) {
-		ExpressionAttribute attribute = this.registry.getAttribute((AuthorizationMethodInvocation) mi);
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationReturnValue mi) {
+		ExpressionAttribute attribute = this.registry
+				.getAttribute((AuthorizationMethodInvocation) mi.getMethodInvocation());
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
-		this.expressionHandler.setReturnObject(returnedObject, ctx);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
+				mi.getMethodInvocation());
+		this.expressionHandler.setReturnObject(mi.getReturnValue(), ctx);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
 		return new AuthorizationDecision(granted);
 	}

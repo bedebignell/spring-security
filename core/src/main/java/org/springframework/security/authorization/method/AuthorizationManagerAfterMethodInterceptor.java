@@ -39,7 +39,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 
 	private final Pointcut pointcut;
 
-	private final AfterMethodAuthorizationManager<MethodInvocation> authorizationManager;
+	private final AuthorizationManager<MethodInvocationReturnValue> authorizationManager;
 
 	/**
 	 * Creates an instance.
@@ -47,7 +47,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 */
 	public AuthorizationManagerAfterMethodInterceptor(Pointcut pointcut,
-			AfterMethodAuthorizationManager<MethodInvocation> authorizationManager) {
+			AuthorizationManager<MethodInvocationReturnValue> authorizationManager) {
 		Assert.notNull(pointcut, "pointcut cannot be null");
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
 		this.pointcut = pointcut;
@@ -64,7 +64,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	@Override
 	public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) throws Throwable {
 		Object result = mi.proceed();
-		this.authorizationManager.verify(authentication, mi, result);
+		this.authorizationManager.verify(authentication, new MethodInvocationReturnValue(mi, result));
 		return result;
 	}
 

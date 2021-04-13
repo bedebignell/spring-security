@@ -152,7 +152,7 @@ public AuthorizationMethodInterceptor methodSecurity() {
 }
 ----
 
-The same can be done for after-method authorization and `AfterMethodAuthorizationManager`.
+The same can be done for after-method authorization.
 After-method authorization is generally concerned with analysing the return value to verify access.
 
 For example, you might have a method that confirms that the account requested actually belongs to the logged-in user like so:
@@ -176,7 +176,7 @@ In that case, you can configure it like so:
 ----
 @Bean
 public AuthorizationMethodInterceptor methodSecurity
-		(AfterMethodAuthorizationManager<MethodInvocation> rules) {
+		(AuthorizationManager<MethodInvocationResult> rules) {
 	AnnotationMethodMatcher pattern = new AnnotationMethodMatcher(MySecurityAnnotation.class);
 	return new DelegatingAuthorizationMethodInterceptor(
 			AuthorizationMethodInterceptors.preAuthorize(),

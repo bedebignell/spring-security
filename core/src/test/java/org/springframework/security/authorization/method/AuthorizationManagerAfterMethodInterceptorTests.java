@@ -23,10 +23,13 @@ import org.junit.Test;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -40,8 +43,7 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 
 	@Test
 	public void instantiateWhenMethodMatcherNullThenException() {
-		AfterMethodAuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(
-				AfterMethodAuthorizationManager.class);
+		AuthorizationManager<MethodInvocationReturnValue> mockAuthorizationManager = mock(AuthorizationManager.class);
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(null, mockAuthorizationManager))
 				.withMessage("pointcut cannot be null");
@@ -58,15 +60,14 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 	public void beforeWhenMockAuthorizationManagerThenVerifyAndReturnedObject() throws Throwable {
 		Supplier<Authentication> authentication = TestAuthentication::authenticatedUser;
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
-		Object returnedObject = new Object();
-		given(mockMethodInvocation.proceed()).willReturn(returnedObject);
-		AfterMethodAuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(
-				AfterMethodAuthorizationManager.class);
+		MethodInvocationReturnValue result = new MethodInvocationReturnValue(mockMethodInvocation, new Object());
+		given(mockMethodInvocation.proceed()).willReturn(result.getReturnValue());
+		AuthorizationManager<MethodInvocationReturnValue> mockAuthorizationManager = mock(AuthorizationManager.class);
 		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
 				Pointcut.TRUE, mockAuthorizationManager);
-		Object result = advice.invoke(authentication, mockMethodInvocation);
-		assertThat(result).isEqualTo(returnedObject);
-		verify(mockAuthorizationManager).verify(authentication, mockMethodInvocation, returnedObject);
+		Object returnedObject = advice.invoke(authentication, mockMethodInvocation);
+		assertThat(returnedObject).isEqualTo(result.getReturnValue());
+		verify(mockAuthorizationManager).verify(eq(authentication), any(MethodInvocationReturnValue.class));
 	}
 
 }
