@@ -77,7 +77,7 @@ public interface MethodSecurityService {
 	@PreAuthorize("hasRole('ADMIN')")
 	@Secured("ROLE_USER")
 	@PostFilter("filterObject.length > 5")
-	@PostAuthorize("returnObject.size > 1")
+	@PostAuthorize("returnObject.size == 2")
 	List<String> manyAnnotations(List<String> array);
 
 }

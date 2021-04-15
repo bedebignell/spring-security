@@ -148,8 +148,8 @@ final class MethodSecurityConfiguration implements ImportAware, InitializingBean
 
 	private List<AuthorizationMethodInterceptor> createDefaultAuthorizationMethodAfterAdvice() {
 		List<AuthorizationMethodInterceptor> afterAdvices = new ArrayList<>();
-		afterAdvices.add(getPostFilterAuthorizationMethodAfterAdvice());
 		afterAdvices.add(getPostAuthorizeAuthorizationMethodAfterAdvice());
+		afterAdvices.add(getPostFilterAuthorizationMethodAfterAdvice());
 		return afterAdvices;
 	}
 
