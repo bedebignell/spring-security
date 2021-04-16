@@ -23,12 +23,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -36,19 +32,9 @@ import org.springframework.security.core.Authentication;
  */
 final class AuthorizationMethodInvocation implements MethodInvocation {
 
-	private final Log logger = LogFactory.getLog(getClass());
-
-	private final Supplier<Authentication> authentication;
-
 	private final MethodInvocation methodInvocation;
 
 	private final Class<?> targetClass;
-
-	private final List<AuthorizationMethodInterceptor> interceptors;
-
-	private final int size;
-
-	private int currentPosition = 0;
 
 	AuthorizationMethodInvocation(Supplier<Authentication> authentication, MethodInvocation methodInvocation) {
 		this(authentication, methodInvocation, Collections.emptyList());
@@ -56,12 +42,9 @@ final class AuthorizationMethodInvocation implements MethodInvocation {
 
 	AuthorizationMethodInvocation(Supplier<Authentication> authentication, MethodInvocation methodInvocation,
 			List<AuthorizationMethodInterceptor> interceptors) {
-		this.authentication = authentication;
 		this.methodInvocation = methodInvocation;
-		this.interceptors = interceptors;
 		Object target = methodInvocation.getThis();
 		this.targetClass = (target != null) ? AopUtils.getTargetClass(target) : null;
-		this.size = interceptors.size();
 	}
 
 	@Override
@@ -84,30 +67,7 @@ final class AuthorizationMethodInvocation implements MethodInvocation {
 
 	@Override
 	public Object proceed() throws Throwable {
-		if (this.currentPosition == this.size) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug(LogMessage.of(() -> "Pre-Authorized " + this.methodInvocation.getMethod()));
-			}
-			return this.methodInvocation.proceed();
-		}
-		AuthorizationMethodInterceptor interceptor = this.interceptors.get(this.currentPosition);
-		this.currentPosition++;
-		Pointcut pointcut = interceptor.getPointcut();
-		if (!pointcut.getClassFilter().matches(getTargetClass())) {
-			return proceed();
-		}
-		if (!pointcut.getMethodMatcher().matches(getMethod(), getTargetClass())) {
-			return proceed();
-		}
-		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(LogMessage.format("Applying %s (%d/%d)", interceptor.getClass().getSimpleName(),
-					this.currentPosition, this.size));
-		}
-		Object result = interceptor.invoke(this.authentication, this);
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug(LogMessage.of(() -> "Post-Authorized " + this.methodInvocation.getMethod()));
-		}
-		return result;
+		return this.methodInvocation.proceed();
 	}
 
 	@Override

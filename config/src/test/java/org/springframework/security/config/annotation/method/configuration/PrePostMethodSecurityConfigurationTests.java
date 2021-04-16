@@ -29,9 +29,11 @@ import org.junit.runner.RunWith;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Role;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.BusinessService;
@@ -53,13 +55,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Tests for {@link MethodSecurityConfiguration}.
+ * Tests for {@link PrePostMethodSecurityConfiguration}.
  *
  * @author Evgeniy Cheban
  */
 @RunWith(SpringRunner.class)
 @SecurityTestExecutionListeners
-public class MethodSecurityConfigurationTests {
+public class PrePostMethodSecurityConfigurationTests {
 
 	@Rule
 	public final SpringTestRule spring = new SpringTestRule();
@@ -310,13 +312,6 @@ public class MethodSecurityConfigurationTests {
 				.isThrownBy(() -> this.methodSecurityService.manyAnnotations(new ArrayList<>(names)));
 	}
 
-	@Test
-	public void configureWhenCustomAdviceAndSecureEnabledThenException() {
-		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> this.spring
-				.register(CustomAuthorizationManagerBeforeAdviceConfig.class, MethodSecurityServiceEnabledConfig.class)
-				.autowire());
-	}
-
 	@EnableMethodSecurity
 	static class MethodSecurityServiceConfig {
 
@@ -375,6 +370,8 @@ public class MethodSecurityConfigurationTests {
 	static class CustomAuthorizationManagerBeforeAdviceConfig {
 
 		@Bean
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		@Order(99)
 		AuthorizationMethodInterceptor customBeforeAdvice() {
 			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
 			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
@@ -389,11 +386,12 @@ public class MethodSecurityConfigurationTests {
 	static class CustomAuthorizationManagerAfterAdviceConfig {
 
 		@Bean
-
+		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+		@Order(601)
 		AuthorizationMethodInterceptor customAfterAdvice() {
 			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
 			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
-			AuthorizationMethodInterceptor interceptor = new AuthorizationMethodInterceptor() {
+			return new AuthorizationMethodInterceptor() {
 				@Override
 				public Pointcut getPointcut() {
 					return pointcut;
@@ -408,7 +406,6 @@ public class MethodSecurityConfigurationTests {
 					throw new AccessDeniedException("Access Denied for User '" + auth.getName() + "'");
 				}
 			};
-			return interceptor;
 		}
 
 	}
