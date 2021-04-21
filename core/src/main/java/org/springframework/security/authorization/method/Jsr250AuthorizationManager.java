@@ -72,16 +72,15 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating the
 	 * {@link DenyAll}, {@link PermitAll}, and {@link RolesAllowed} annotations that
-	 * {@link AuthorizationMethodInvocation} specifies.
+	 * {@link MethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param methodInvocation the {@link AuthorizationMethodInvocation} to check
+	 * @param methodInvocation the {@link MethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or null if the JSR-250 security
 	 * annotations is not present
 	 */
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation methodInvocation) {
-		AuthorizationManager<MethodInvocation> delegate = this.registry
-				.getManager((AuthorizationMethodInvocation) methodInvocation);
+		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager(methodInvocation);
 		return delegate.check(authentication, methodInvocation);
 	}
 

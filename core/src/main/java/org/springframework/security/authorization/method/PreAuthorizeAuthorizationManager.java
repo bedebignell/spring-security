@@ -61,15 +61,15 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating an
 	 * expression from the {@link PreAuthorize} annotation that the
-	 * {@link AuthorizationMethodInvocation} specifies.
+	 * {@link MethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param mi the {@link AuthorizationMethodInvocation} to check
+	 * @param mi the {@link MethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or {@code null} if the
 	 * {@link PreAuthorize} annotation is not present
 	 */
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
-		ExpressionAttribute attribute = this.registry.getAttribute((AuthorizationMethodInvocation) mi);
+		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}

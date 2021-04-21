@@ -16,14 +16,13 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import org.springframework.aop.Advisor;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.authorization.method.AuthorizationMethodInterceptor;
-import org.springframework.security.authorization.method.AuthorizationMethodInterceptors;
+import org.springframework.security.authorization.method.AuthorizationAdvisors;
 
 /**
  * {@link Configuration} for enabling {@link Secured} Spring Security Method Security.
@@ -41,9 +40,8 @@ final class SecuredMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	@Order(SECURED_INTERCEPTOR_ORDER)
-	AuthorizationMethodInterceptor securedAuthorizationMethodInterceptor() {
-		return AuthorizationMethodInterceptors.secured();
+	Advisor securedAuthorizationMethodInterceptor() {
+		return AuthorizationAdvisors.secured();
 	}
 
 }

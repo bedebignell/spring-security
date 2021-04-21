@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  * @author Evgeniy Cheban
  * @since 5.6
  */
-public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationReturnValue> {
+public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationResult> {
 
 	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
@@ -60,23 +60,22 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 
 	/**
 	 * Determine if an {@link Authentication} has access to the returned object by
-	 * evaluating the {@link PostAuthorize} annotation that the
-	 * {@link AuthorizationMethodInvocation} specifies.
+	 * evaluating the {@link PostAuthorize} annotation that the {@link MethodInvocation}
+	 * specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param mi the {@link MethodInvocationReturnValue} to check
+	 * @param mi the {@link MethodInvocationResult} to check
 	 * @return an {@link AuthorizationDecision} or {@code null} if the
 	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationReturnValue mi) {
-		ExpressionAttribute attribute = this.registry
-				.getAttribute((AuthorizationMethodInvocation) mi.getMethodInvocation());
+	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationResult mi) {
+		ExpressionAttribute attribute = this.registry.getAttribute(mi.getMethodInvocation());
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return null;
 		}
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(),
 				mi.getMethodInvocation());
-		this.expressionHandler.setReturnObject(mi.getReturnValue(), ctx);
+		this.expressionHandler.setReturnObject(mi.getResult(), ctx);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
 		return new AuthorizationDecision(granted);
 	}

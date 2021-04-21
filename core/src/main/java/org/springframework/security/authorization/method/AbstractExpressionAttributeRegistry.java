@@ -20,6 +20,9 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.aopalliance.intercept.MethodInvocation;
+
+import org.springframework.aop.support.AopUtils;
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
 
@@ -33,14 +36,14 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	private final Map<MethodClassKey, T> cachedAttributes = new ConcurrentHashMap<>();
 
 	/**
-	 * Returns an {@link ExpressionAttribute} for the
-	 * {@link AuthorizationMethodInvocation}.
-	 * @param mi the {@link AuthorizationMethodInvocation} to use
+	 * Returns an {@link ExpressionAttribute} for the {@link MethodInvocation}.
+	 * @param mi the {@link MethodInvocation} to use
 	 * @return the {@link ExpressionAttribute} to use
 	 */
-	final T getAttribute(AuthorizationMethodInvocation mi) {
+	final T getAttribute(MethodInvocation mi) {
 		Method method = mi.getMethod();
-		Class<?> targetClass = mi.getTargetClass();
+		Object target = mi.getThis();
+		Class<?> targetClass = (target != null) ? AopUtils.getTargetClass(target) : null;
 		return getAttribute(method, targetClass);
 	}
 

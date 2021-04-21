@@ -16,15 +16,14 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import org.springframework.aop.Advisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.authorization.method.AuthorizationMethodInterceptor;
-import org.springframework.security.authorization.method.AuthorizationMethodInterceptors;
+import org.springframework.security.authorization.method.AuthorizationAdvisors;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
@@ -42,14 +41,6 @@ import org.springframework.security.authorization.method.PreFilterAuthorizationM
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 final class PrePostMethodSecurityConfiguration {
 
-	public static final int PRE_FILTER_INTERCEPTOR_ORDER = 100;
-
-	public static final int PRE_AUTHORIZE_INTERCEPTOR_ORDER = 200;
-
-	public static final int POST_AUTHORIZE_INTERCEPTOR_ORDER = 300;
-
-	public static final int POST_FILTER_INTERCEPTOR_ORDER = 400;
-
 	private final PreFilterAuthorizationMethodInterceptor preFilterAuthorizationMethodInterceptor = new PreFilterAuthorizationMethodInterceptor();
 
 	private final PreAuthorizeAuthorizationManager preAuthorizeAuthorizationManager = new PreAuthorizeAuthorizationManager();
@@ -60,29 +51,25 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	@Order(PRE_FILTER_INTERCEPTOR_ORDER)
-	AuthorizationMethodInterceptor preFilterAuthorizationMethodInterceptor() {
+	Advisor preFilterAuthorizationMethodInterceptor() {
 		return this.preFilterAuthorizationMethodInterceptor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	@Order(PRE_AUTHORIZE_INTERCEPTOR_ORDER)
-	AuthorizationMethodInterceptor preAuthorizeAuthorizationMethodInterceptor() {
-		return AuthorizationMethodInterceptors.preAuthorize(this.preAuthorizeAuthorizationManager);
+	Advisor preAuthorizeAuthorizationMethodInterceptor() {
+		return AuthorizationAdvisors.preAuthorize(this.preAuthorizeAuthorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	@Order(POST_AUTHORIZE_INTERCEPTOR_ORDER)
-	AuthorizationMethodInterceptor postAuthorizeAuthorizationMethodInterceptor() {
-		return AuthorizationMethodInterceptors.postAuthorize(this.postAuthorizeAuthorizationManager);
+	Advisor postAuthorizeAuthorizationMethodInterceptor() {
+		return AuthorizationAdvisors.postAuthorize(this.postAuthorizeAuthorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	@Order(POST_FILTER_INTERCEPTOR_ORDER)
-	AuthorizationMethodInterceptor postFilterAuthorizationMethodInterceptor() {
+	Advisor postFilterAuthorizationMethodInterceptor() {
 		return this.postFilterAuthorizationMethodInterceptor;
 	}
 

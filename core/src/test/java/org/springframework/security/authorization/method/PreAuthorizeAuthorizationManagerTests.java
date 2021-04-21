@@ -16,8 +16,6 @@
 
 package org.springframework.security.authorization.method;
 
-import java.util.Collections;
-
 import org.junit.Test;
 
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -54,10 +52,8 @@ public class PreAuthorizeAuthorizationManagerTests {
 
 	@Test
 	public void checkDoSomethingWhenNoPostAuthorizeAnnotationThenNullDecision() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomething", new Class[] {}, new Object[] {});
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNull();
@@ -65,10 +61,8 @@ public class PreAuthorizeAuthorizationManagerTests {
 
 	@Test
 	public void checkDoSomethingStringWhenArgIsGrantThenGrantedDecision() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "grant" });
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();
@@ -77,10 +71,8 @@ public class PreAuthorizeAuthorizationManagerTests {
 
 	@Test
 	public void checkDoSomethingStringWhenArgIsNotGrantThenDeniedDecision() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();

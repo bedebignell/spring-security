@@ -16,7 +16,6 @@
 
 package org.springframework.security.authorization.method;
 
-import java.util.Collections;
 import java.util.function.Supplier;
 
 import org.junit.Test;
@@ -39,10 +38,8 @@ public class SecuredAuthorizationManagerTests {
 
 	@Test
 	public void checkDoSomethingWhenNoSecuredAnnotationThenNullDecision() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomething");
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNull();
@@ -50,10 +47,8 @@ public class SecuredAuthorizationManagerTests {
 
 	@Test
 	public void checkSecuredUserOrAdminWhenRoleUserThenGrantedDecision() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"securedUserOrAdmin");
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
 		assertThat(decision).isNotNull();
@@ -62,10 +57,8 @@ public class SecuredAuthorizationManagerTests {
 
 	@Test
 	public void checkSecuredUserOrAdminWhenRoleAdminThenGrantedDecision() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"securedUserOrAdmin");
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedAdmin, mockMethodInvocation, Collections.emptyList());
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
 		assertThat(decision).isNotNull();
@@ -76,10 +69,8 @@ public class SecuredAuthorizationManagerTests {
 	public void checkSecuredUserOrAdminWhenRoleAnonymousThenDeniedDecision() throws Exception {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
 				"ROLE_ANONYMOUS");
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"securedUserOrAdmin");
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(authentication,
-				mockMethodInvocation, Collections.emptyList());
 		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
 		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
 		assertThat(decision).isNotNull();

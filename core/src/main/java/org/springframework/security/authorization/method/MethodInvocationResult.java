@@ -21,27 +21,27 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.util.Assert;
 
 /**
- * A context object that contains a {@link MethodInvocation} and the return value from
- * that {@link MethodInvocation}.
+ * A context object that contains a {@link MethodInvocation} and the result of that
+ * {@link MethodInvocation}.
  *
  * @author Josh Cummings
  * @since 5.6
  */
-public class MethodInvocationReturnValue {
+public class MethodInvocationResult {
 
 	private final MethodInvocation methodInvocation;
 
-	private final Object returnValue;
+	private final Object result;
 
 	/**
-	 * Construct a {@link MethodInvocationReturnValue} with the provided parameters
+	 * Construct a {@link MethodInvocationResult} with the provided parameters
 	 * @param methodInvocation the already-invoked {@link MethodInvocation}
-	 * @param returnValue the value returned from the {@link MethodInvocation}
+	 * @param result the value returned from the {@link MethodInvocation}
 	 */
-	public MethodInvocationReturnValue(MethodInvocation methodInvocation, Object returnValue) {
+	public MethodInvocationResult(MethodInvocation methodInvocation, Object result) {
 		Assert.notNull(methodInvocation, "methodInvocation cannot be null");
 		this.methodInvocation = methodInvocation;
-		this.returnValue = returnValue;
+		this.result = result;
 	}
 
 	/**
@@ -53,11 +53,11 @@ public class MethodInvocationReturnValue {
 	}
 
 	/**
-	 * Return the return value of the already-invoked {@link MethodInvocation}
-	 * @return the return value
+	 * Return the result of the already-invoked {@link MethodInvocation}
+	 * @return the result
 	 */
-	public Object getReturnValue() {
-		return this.returnValue;
+	public Object getResult() {
+		return this.result;
 	}
 
 }

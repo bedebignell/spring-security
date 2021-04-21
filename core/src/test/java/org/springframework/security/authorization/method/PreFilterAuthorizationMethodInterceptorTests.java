@@ -17,9 +17,10 @@
 package org.springframework.security.authorization.method;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.aop.MethodMatcher;
@@ -28,6 +29,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -39,6 +41,16 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Evgeniy Cheban
  */
 public class PreFilterAuthorizationMethodInterceptorTests {
+
+	@Before
+	public void setUp() {
+		SecurityContextHolder.getContext().setAuthentication(TestAuthentication.authenticatedUser());
+	}
+
+	@After
+	public void tearDown() {
+		SecurityContextHolder.clearContext();
+	}
 
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
@@ -73,25 +85,19 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 
 	@Test
 	public void findFilterTargetWhenNameProvidedAndNotMatchThenException() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingListFilterTargetNotMatch", new Class[] { List.class }, new Object[] { new ArrayList<>() });
 		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> advice.invoke(TestAuthentication::authenticatedUser, methodInvocation)).withMessage(
-						"Filter target was null, or no argument with name 'filterTargetNotMatch' found in method.");
+		assertThatIllegalArgumentException().isThrownBy(() -> advice.invoke(methodInvocation)).withMessage(
+				"Filter target was null, or no argument with name 'filterTargetNotMatch' found in method.");
 	}
 
 	@Test
 	public void findFilterTargetWhenNameProvidedAndMatchAndNullThenException() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingListFilterTargetMatch", new Class[] { List.class }, new Object[] { null });
 		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> advice.invoke(TestAuthentication::authenticatedUser, methodInvocation))
+		assertThatIllegalArgumentException().isThrownBy(() -> advice.invoke(methodInvocation))
 				.withMessage("Filter target was null, or no argument with name 'list' found in method.");
 	}
 
@@ -100,25 +106,20 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 		List<String> list = new ArrayList<>();
 		list.add("john");
 		list.add("bob");
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingListFilterTargetMatch", new Class[] { List.class }, new Object[] { list });
 		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
-		advice.invoke(TestAuthentication::authenticatedUser, methodInvocation);
+		advice.invoke(methodInvocation);
 		assertThat(list).hasSize(1);
 		assertThat(list.get(0)).isEqualTo("john");
 	}
 
 	@Test
 	public void findFilterTargetWhenNameNotProvidedAndSingleArgListNullThenException() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingListFilterTargetNotProvided", new Class[] { List.class }, new Object[] { null });
 		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> advice.invoke(TestAuthentication::authenticatedUser, methodInvocation))
+		assertThatIllegalArgumentException().isThrownBy(() -> advice.invoke(methodInvocation))
 				.withMessage("Filter target was null. Make sure you passing the correct value in the method argument.");
 	}
 
@@ -127,39 +128,31 @@ public class PreFilterAuthorizationMethodInterceptorTests {
 		List<String> list = new ArrayList<>();
 		list.add("john");
 		list.add("bob");
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingListFilterTargetNotProvided", new Class[] { List.class }, new Object[] { list });
 		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
-		advice.invoke(TestAuthentication::authenticatedUser, methodInvocation);
+		advice.invoke(methodInvocation);
 		assertThat(list).hasSize(1);
 		assertThat(list.get(0)).isEqualTo("john");
 	}
 
 	@Test
 	public void findFilterTargetWhenNameNotProvidedAndSingleArgArrayThenException() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArrayFilterTargetNotProvided", new Class[] { String[].class },
 				new Object[] { new String[] {} });
 		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
-		assertThatIllegalStateException()
-				.isThrownBy(() -> advice.invoke(TestAuthentication::authenticatedUser, methodInvocation)).withMessage(
-						"Pre-filtering on array types is not supported. Using a Collection will solve this problem.");
+		assertThatIllegalStateException().isThrownBy(() -> advice.invoke(methodInvocation)).withMessage(
+				"Pre-filtering on array types is not supported. Using a Collection will solve this problem.");
 	}
 
 	@Test
 	public void findFilterTargetWhenNameNotProvidedAndNotSingleArgThenException() throws Exception {
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingTwoArgsFilterTargetNotProvided", new Class[] { String.class, List.class },
 				new Object[] { "", new ArrayList<>() });
 		PreFilterAuthorizationMethodInterceptor advice = new PreFilterAuthorizationMethodInterceptor();
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
-		assertThatIllegalStateException()
-				.isThrownBy(() -> advice.invoke(TestAuthentication::authenticatedUser, methodInvocation))
+		assertThatIllegalStateException().isThrownBy(() -> advice.invoke(methodInvocation))
 				.withMessage("Unable to determine the method argument for filtering. Specify the filter target.");
 	}
 

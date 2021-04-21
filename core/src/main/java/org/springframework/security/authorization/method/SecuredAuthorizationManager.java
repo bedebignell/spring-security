@@ -44,15 +44,15 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating the
-	 * {@link Secured} annotation that {@link AuthorizationMethodInvocation} specifies.
+	 * {@link Secured} annotation that {@link MethodInvocation} specifies.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param mi the {@link AuthorizationMethodInvocation} to check
+	 * @param mi the {@link MethodInvocation} to check
 	 * @return an {@link AuthorizationDecision} or null if the {@link Secured} annotation
 	 * is not present
 	 */
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
-		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager((AuthorizationMethodInvocation) mi);
+		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager(mi);
 		return delegate.check(authentication, mi);
 	}
 

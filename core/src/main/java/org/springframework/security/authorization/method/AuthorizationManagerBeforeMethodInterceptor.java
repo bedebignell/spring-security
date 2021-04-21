@@ -18,23 +18,42 @@ package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.framework.AopInfrastructureBean;
+import org.springframework.core.Ordered;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationMethodInterceptor} which uses a {@link AuthorizationManager} to
- * determine if an {@link Authentication} may invoke the given {@link MethodInvocation}
+ * A {@link MethodInterceptor} which uses a {@link AuthorizationManager} to determine if
+ * an {@link Authentication} may invoke the given {@link MethodInvocation}
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
  * @since 5.6
  */
-public final class AuthorizationManagerBeforeMethodInterceptor implements AuthorizationMethodInterceptor {
+public final class AuthorizationManagerBeforeMethodInterceptor
+		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
+
+	static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null) {
+			throw new AuthenticationCredentialsNotFoundException(
+					"An Authentication object was not found in the SecurityContext");
+		}
+		return authentication;
+	};
+
+	private final int order;
 
 	private final Pointcut pointcut;
 
@@ -45,10 +64,11 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	 * @param pointcut the {@link Pointcut} to use
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 */
-	public AuthorizationManagerBeforeMethodInterceptor(Pointcut pointcut,
+	public AuthorizationManagerBeforeMethodInterceptor(int order, Pointcut pointcut,
 			AuthorizationManager<MethodInvocation> authorizationManager) {
 		Assert.notNull(pointcut, "pointcut cannot be null");
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
+		this.order = order;
 		this.pointcut = pointcut;
 		this.authorizationManager = authorizationManager;
 	}
@@ -56,14 +76,18 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	/**
 	 * Determine if an {@link Authentication} has access to the {@link MethodInvocation}
 	 * using the configured {@link AuthorizationManager}.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
 	 * @param mi the {@link MethodInvocation} to check
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	@Override
-	public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) throws Throwable {
-		this.authorizationManager.verify(authentication, mi);
+	public Object invoke(MethodInvocation mi) throws Throwable {
+		this.authorizationManager.verify(AUTHENTICATION_SUPPLIER, mi);
 		return mi.proceed();
+	}
+
+	@Override
+	public int getOrder() {
+		return this.order;
 	}
 
 	/**
@@ -72,6 +96,16 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	@Override
 	public Pointcut getPointcut() {
 		return this.pointcut;
+	}
+
+	@Override
+	public Advice getAdvice() {
+		return this;
+	}
+
+	@Override
+	public boolean isPerInstance() {
+		return true;
 	}
 
 }

@@ -16,9 +16,9 @@
 
 package org.springframework.security.authorization.method;
 
-import java.util.Collections;
-
 import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.springframework.aop.MethodMatcher;
@@ -27,6 +27,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -37,6 +38,16 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Evgeniy Cheban
  */
 public class PostFilterAuthorizationMethodInterceptorTests {
+
+	@Before
+	public void setUp() {
+		SecurityContextHolder.getContext().setAuthentication(TestAuthentication.authenticatedUser());
+	}
+
+	@After
+	public void tearDown() {
+		SecurityContextHolder.clearContext();
+	}
 
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
@@ -73,7 +84,7 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 	@Test
 	public void afterWhenArrayNotNullThenFilteredArray() throws Throwable {
 		String[] array = { "john", "bob" };
-		MockMethodInvocation mockMethodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingArrayClassLevel", new Class[] { String[].class }, new Object[] { array }) {
 			@Override
 			public Object proceed() {
@@ -81,9 +92,7 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 			}
 		};
 		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
-		AuthorizationMethodInvocation methodInvocation = new AuthorizationMethodInvocation(
-				TestAuthentication::authenticatedUser, mockMethodInvocation, Collections.emptyList());
-		Object result = advice.invoke(TestAuthentication::authenticatedUser, methodInvocation);
+		Object result = advice.invoke(methodInvocation);
 		assertThat(result).asInstanceOf(InstanceOfAssertFactories.array(String[].class)).containsOnly("john");
 	}
 

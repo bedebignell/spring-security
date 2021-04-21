@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -43,9 +44,10 @@ abstract class AbstractAuthorizationManagerRegistry {
 	 * @param methodInvocation the {@link AuthorizationMethodInvocation} to use
 	 * @return an {@link AuthorizationManager} to use
 	 */
-	final AuthorizationManager<MethodInvocation> getManager(AuthorizationMethodInvocation methodInvocation) {
+	final AuthorizationManager<MethodInvocation> getManager(MethodInvocation methodInvocation) {
 		Method method = methodInvocation.getMethod();
-		Class<?> targetClass = methodInvocation.getTargetClass();
+		Object target = methodInvocation.getThis();
+		Class<?> targetClass = (target != null) ? AopUtils.getTargetClass(target) : null;
 		MethodClassKey cacheKey = new MethodClassKey(method, targetClass);
 		return this.cachedManagers.computeIfAbsent(cacheKey, (k) -> resolveManager(method, targetClass));
 	}

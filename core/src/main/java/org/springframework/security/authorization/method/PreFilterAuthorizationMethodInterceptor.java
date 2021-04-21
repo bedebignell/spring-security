@@ -19,10 +19,15 @@ package org.springframework.security.authorization.method;
 import java.lang.reflect.Method;
 import java.util.function.Supplier;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.PointcutAdvisor;
+import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -30,21 +35,35 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreFilter;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * An {@link AuthorizationMethodInterceptor} which filters a method argument by evaluating
- * an expression from the {@link PreFilter} annotation.
+ * A {@link MethodInterceptor} which filters a method argument by evaluating an expression
+ * from the {@link PreFilter} annotation.
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
  * @since 5.6
  */
-public final class PreFilterAuthorizationMethodInterceptor implements AuthorizationMethodInterceptor {
+public final class PreFilterAuthorizationMethodInterceptor
+		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
+
+	private static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null) {
+			throw new AuthenticationCredentialsNotFoundException(
+					"An Authentication object was not found in the SecurityContext");
+		}
+		return authentication;
+	};
 
 	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
+
+	private final int order;
 
 	private final Pointcut pointcut;
 
@@ -55,6 +74,16 @@ public final class PreFilterAuthorizationMethodInterceptor implements Authorizat
 	 * parameters
 	 */
 	public PreFilterAuthorizationMethodInterceptor() {
+		this.order = AuthorizationAdvisors.PRE_FILTER_ADVISOR_ORDER;
+		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
+	}
+
+	/**
+	 * Creates a {@link PreFilterAuthorizationMethodInterceptor} using the provided
+	 * parameters
+	 */
+	public PreFilterAuthorizationMethodInterceptor(int order) {
+		this.order = order;
 		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
 	}
 
@@ -71,23 +100,40 @@ public final class PreFilterAuthorizationMethodInterceptor implements Authorizat
 	 * {@inheritDoc}
 	 */
 	@Override
+	public int getOrder() {
+		return this.order;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Pointcut getPointcut() {
 		return this.pointcut;
 	}
 
+	@Override
+	public Advice getAdvice() {
+		return this;
+	}
+
+	@Override
+	public boolean isPerInstance() {
+		return true;
+	}
+
 	/**
 	 * Filter the method argument specified in the {@link PreFilter} annotation that
-	 * {@link AuthorizationMethodInvocation} specifies.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param mi the {@link AuthorizationMethodInvocation} to check
+	 * {@link MethodInvocation} specifies.
+	 * @param mi the {@link MethodInvocation} to check
 	 */
 	@Override
-	public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) throws Throwable {
-		PreFilterExpressionAttribute attribute = this.registry.getAttribute((AuthorizationMethodInvocation) mi);
+	public Object invoke(MethodInvocation mi) throws Throwable {
+		PreFilterExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
 			return mi.proceed();
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), mi);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(AUTHENTICATION_SUPPLIER.get(), mi);
 		Object filterTarget = findFilterTarget(attribute.filterTarget, ctx, mi);
 		this.expressionHandler.filter(filterTarget, attribute.getExpression(), ctx);
 		return mi.proceed();

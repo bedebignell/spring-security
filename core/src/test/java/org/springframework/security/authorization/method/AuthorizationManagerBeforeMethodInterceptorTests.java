@@ -16,15 +16,11 @@
 
 package org.springframework.security.authorization.method;
 
-import java.util.function.Supplier;
-
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
 
 import org.springframework.aop.Pointcut;
-import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
@@ -39,28 +35,27 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 
 	@Test
 	public void instantiateWhenMethodMatcherNullThenException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(
-						() -> new AuthorizationManagerBeforeMethodInterceptor(null, mock(AuthorizationManager.class)))
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new AuthorizationManagerBeforeMethodInterceptor(200, null, mock(AuthorizationManager.class)))
 				.withMessage("pointcut cannot be null");
 	}
 
 	@Test
 	public void instantiateWhenAuthorizationManagerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerBeforeMethodInterceptor(mock(Pointcut.class), null))
+				.isThrownBy(() -> new AuthorizationManagerBeforeMethodInterceptor(200, mock(Pointcut.class), null))
 				.withMessage("authorizationManager cannot be null");
 	}
 
 	@Test
 	public void beforeWhenMockAuthorizationManagerThenVerify() throws Throwable {
-		Supplier<Authentication> authentication = TestAuthentication::authenticatedUser;
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(AuthorizationManager.class);
-		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
+		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(200,
 				Pointcut.TRUE, mockAuthorizationManager);
-		advice.invoke(authentication, mockMethodInvocation);
-		verify(mockAuthorizationManager).verify(authentication, mockMethodInvocation);
+		advice.invoke(mockMethodInvocation);
+		verify(mockAuthorizationManager).verify(AuthorizationManagerBeforeMethodInterceptor.AUTHENTICATION_SUPPLIER,
+				mockMethodInvocation);
 	}
 
 }

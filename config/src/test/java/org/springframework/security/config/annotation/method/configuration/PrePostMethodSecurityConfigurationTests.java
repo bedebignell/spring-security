@@ -20,14 +20,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.springframework.aop.Pointcut;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -42,10 +43,11 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.method.AuthorizationAdvisors;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
-import org.springframework.security.authorization.method.AuthorizationMethodInterceptor;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -372,12 +374,13 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 		@Order(99)
-		AuthorizationMethodInterceptor customBeforeAdvice() {
+		Advisor customBeforeAdvice() {
 			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
 			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
 			AuthorizationManager<MethodInvocation> authorizationManager = (a,
 					o) -> new AuthorizationDecision("bob".equals(a.get().getName()));
-			return new AuthorizationManagerBeforeMethodInterceptor(pointcut, authorizationManager);
+			return new AuthorizationManagerBeforeMethodInterceptor(AuthorizationAdvisors.PRE_FILTER_ADVISOR_ORDER - 1,
+					pointcut, authorizationManager);
 		}
 
 	}
@@ -387,25 +390,19 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		@Order(601)
-		AuthorizationMethodInterceptor customAfterAdvice() {
+		Advisor customAfterAdvice() {
 			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
 			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
-			return new AuthorizationMethodInterceptor() {
-				@Override
-				public Pointcut getPointcut() {
-					return pointcut;
+			MethodInterceptor interceptor = (mi) -> {
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				if ("bob".equals(auth.getName())) {
+					return "granted";
 				}
-
-				@Override
-				public Object invoke(Supplier<Authentication> authentication, MethodInvocation mi) {
-					Authentication auth = authentication.get();
-					if ("bob".equals(auth.getName())) {
-						return "granted";
-					}
-					throw new AccessDeniedException("Access Denied for User '" + auth.getName() + "'");
-				}
+				throw new AccessDeniedException("Access Denied for User '" + auth.getName() + "'");
 			};
+			DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, interceptor);
+			advisor.setOrder(AuthorizationAdvisors.POST_FILTER_ADVISOR_ORDER + 1);
+			return advisor;
 		}
 
 	}

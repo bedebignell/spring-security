@@ -16,14 +16,13 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import org.springframework.aop.Advisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.authorization.method.AuthorizationMethodInterceptor;
-import org.springframework.security.authorization.method.AuthorizationMethodInterceptors;
+import org.springframework.security.authorization.method.AuthorizationAdvisors;
 import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
@@ -39,15 +38,12 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 final class Jsr250MethodSecurityConfiguration {
 
-	public static final int JSR250_INTERCEPTOR_ORDER = 600;
-
 	private final Jsr250AuthorizationManager jsr250AuthorizationManager = new Jsr250AuthorizationManager();
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	@Order(JSR250_INTERCEPTOR_ORDER)
-	AuthorizationMethodInterceptor jsr250AuthorizationMethodInterceptor() {
-		return AuthorizationMethodInterceptors.jsr250(this.jsr250AuthorizationManager);
+	Advisor jsr250AuthorizationMethodInterceptor() {
+		return AuthorizationAdvisors.jsr250(this.jsr250AuthorizationManager);
 	}
 
 	@Autowired(required = false)

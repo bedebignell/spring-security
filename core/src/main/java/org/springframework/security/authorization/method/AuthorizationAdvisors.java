@@ -20,12 +20,13 @@ import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 
+import org.springframework.aop.Advisor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
- * A static factory for constructing common {@link AuthorizationMethodInterceptor}s
+ * A static factory for constructing common authorization {@link Advisor}s
  *
  * @author Josh Cummings
  * @since 5.6
@@ -34,46 +35,58 @@ import org.springframework.security.access.prepost.PreAuthorize;
  * @see SecuredAuthorizationManager
  * @see Jsr250AuthorizationManager
  */
-public final class AuthorizationMethodInterceptors {
+public final class AuthorizationAdvisors {
 
-	public static AuthorizationMethodInterceptor preAuthorize() {
+	public static final int PRE_FILTER_ADVISOR_ORDER = 100;
+
+	public static final int PRE_AUTHORIZE_ADVISOR_ORDER = 200;
+
+	public static final int POST_AUTHORIZE_ADVISOR_ORDER = 300;
+
+	public static final int POST_FILTER_ADVISOR_ORDER = 400;
+
+	public static final int SECURED_ADVISOR_ORDER = 500;
+
+	public static final int JSR250_ADVISOR_ORDER = 600;
+
+	public static Advisor preAuthorize() {
 		return preAuthorize(new PreAuthorizeAuthorizationManager());
 	}
 
-	public static AuthorizationMethodInterceptor preAuthorize(PreAuthorizeAuthorizationManager manager) {
-		return new AuthorizationManagerBeforeMethodInterceptor(
+	public static Advisor preAuthorize(PreAuthorizeAuthorizationManager manager) {
+		return new AuthorizationManagerBeforeMethodInterceptor(PRE_AUTHORIZE_ADVISOR_ORDER,
 				AuthorizationMethodPointcuts.forAnnotations(PreAuthorize.class), manager);
 	}
 
-	public static AuthorizationMethodInterceptor postAuthorize() {
+	public static Advisor postAuthorize() {
 		return postAuthorize(new PostAuthorizeAuthorizationManager());
 	}
 
-	public static AuthorizationMethodInterceptor postAuthorize(PostAuthorizeAuthorizationManager manager) {
-		return new AuthorizationManagerAfterMethodInterceptor(
+	public static Advisor postAuthorize(PostAuthorizeAuthorizationManager manager) {
+		return new AuthorizationManagerAfterMethodInterceptor(POST_AUTHORIZE_ADVISOR_ORDER,
 				AuthorizationMethodPointcuts.forAnnotations(PostAuthorize.class), manager);
 	}
 
-	public static AuthorizationMethodInterceptor secured() {
+	public static Advisor secured() {
 		return secured(new SecuredAuthorizationManager());
 	}
 
-	public static AuthorizationMethodInterceptor secured(SecuredAuthorizationManager manager) {
-		return new AuthorizationManagerBeforeMethodInterceptor(
+	public static Advisor secured(SecuredAuthorizationManager manager) {
+		return new AuthorizationManagerBeforeMethodInterceptor(SECURED_ADVISOR_ORDER,
 				AuthorizationMethodPointcuts.forAnnotations(Secured.class), manager);
 	}
 
-	public static AuthorizationMethodInterceptor jsr250() {
+	public static Advisor jsr250() {
 		return jsr250(new Jsr250AuthorizationManager());
 	}
 
-	public static AuthorizationMethodInterceptor jsr250(Jsr250AuthorizationManager manager) {
-		return new AuthorizationManagerBeforeMethodInterceptor(
+	public static Advisor jsr250(Jsr250AuthorizationManager manager) {
+		return new AuthorizationManagerBeforeMethodInterceptor(JSR250_ADVISOR_ORDER,
 				AuthorizationMethodPointcuts.forAnnotations(DenyAll.class, PermitAll.class, RolesAllowed.class),
 				manager);
 	}
 
-	private AuthorizationMethodInterceptors() {
+	private AuthorizationAdvisors() {
 
 	}
 
