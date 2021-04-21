@@ -93,4 +93,8 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 		return object;
 	}
 
+	@Override
+	public void repeatedAnnotations() {
+	}
+
 }

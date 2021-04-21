@@ -22,7 +22,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
-import org.springframework.security.authorization.method.AuthorizationAdvisors;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
@@ -43,7 +43,7 @@ final class Jsr250MethodSecurityConfiguration {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor jsr250AuthorizationMethodInterceptor() {
-		return AuthorizationAdvisors.jsr250(this.jsr250AuthorizationManager);
+		return AuthorizationManagerBeforeMethodInterceptor.jsr250(this.jsr250AuthorizationManager);
 	}
 
 	@Autowired(required = false)

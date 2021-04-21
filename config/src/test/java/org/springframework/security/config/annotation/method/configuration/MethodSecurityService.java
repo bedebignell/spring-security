@@ -80,4 +80,8 @@ public interface MethodSecurityService {
 	@PostAuthorize("returnObject.size == 2")
 	List<String> manyAnnotations(List<String> array);
 
+	@RequireUserRole
+	@RequireAdminRole
+	void repeatedAnnotations();
+
 }

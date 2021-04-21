@@ -63,7 +63,7 @@ public final class PostFilterAuthorizationMethodInterceptor
 
 	private final PostFilterExpressionAttributeRegistry registry = new PostFilterExpressionAttributeRegistry();
 
-	private final int order;
+	private int order = AuthorizationInterceptorsOrder.POST_FILTER.getOrder();
 
 	private final Pointcut pointcut;
 
@@ -74,16 +74,6 @@ public final class PostFilterAuthorizationMethodInterceptor
 	 * parameters
 	 */
 	public PostFilterAuthorizationMethodInterceptor() {
-		this.order = AuthorizationAdvisors.POST_FILTER_ADVISOR_ORDER;
-		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PostFilter.class);
-	}
-
-	/**
-	 * Creates a {@link PostFilterAuthorizationMethodInterceptor} using the provided
-	 * parameters
-	 */
-	public PostFilterAuthorizationMethodInterceptor(int order) {
-		this.order = order;
 		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PostFilter.class);
 	}
 
@@ -102,6 +92,10 @@ public final class PostFilterAuthorizationMethodInterceptor
 	@Override
 	public int getOrder() {
 		return this.order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	/**

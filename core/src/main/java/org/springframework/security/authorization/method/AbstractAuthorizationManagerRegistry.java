@@ -39,9 +39,8 @@ abstract class AbstractAuthorizationManagerRegistry {
 	private final Map<MethodClassKey, AuthorizationManager<MethodInvocation>> cachedManagers = new ConcurrentHashMap<>();
 
 	/**
-	 * Returns an {@link AuthorizationManager} for the
-	 * {@link AuthorizationMethodInvocation}.
-	 * @param methodInvocation the {@link AuthorizationMethodInvocation} to use
+	 * Returns an {@link AuthorizationManager} for the {@link MethodInvocation}.
+	 * @param methodInvocation the {@link MethodInvocation} to use
 	 * @return an {@link AuthorizationManager} to use
 	 */
 	final AuthorizationManager<MethodInvocation> getManager(MethodInvocation methodInvocation) {

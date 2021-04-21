@@ -27,6 +27,7 @@ import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.core.Ordered;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -53,24 +54,44 @@ public final class AuthorizationManagerAfterMethodInterceptor
 		return authentication;
 	};
 
-	private final int order;
-
 	private final Pointcut pointcut;
 
 	private final AuthorizationManager<MethodInvocationResult> authorizationManager;
+
+	private int order;
 
 	/**
 	 * Creates an instance.
 	 * @param pointcut the {@link Pointcut} to use
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 */
-	public AuthorizationManagerAfterMethodInterceptor(int order, Pointcut pointcut,
+	public AuthorizationManagerAfterMethodInterceptor(Pointcut pointcut,
 			AuthorizationManager<MethodInvocationResult> authorizationManager) {
 		Assert.notNull(pointcut, "pointcut cannot be null");
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
-		this.order = order;
 		this.pointcut = pointcut;
 		this.authorizationManager = authorizationManager;
+	}
+
+	/**
+	 * Creates an interceptor for the {@link PostAuthorize} annotation
+	 * @return the interceptor
+	 */
+	public static AuthorizationManagerAfterMethodInterceptor postAuthorize() {
+		return postAuthorize(new PostAuthorizeAuthorizationManager());
+	}
+
+	/**
+	 * Creates an interceptor for the {@link PostAuthorize} annotation
+	 * @param authorizationManager the {@link PostAuthorizeAuthorizationManager} to use
+	 * @return the interceptor
+	 */
+	public static AuthorizationManagerAfterMethodInterceptor postAuthorize(
+			PostAuthorizeAuthorizationManager authorizationManager) {
+		AuthorizationManagerAfterMethodInterceptor interceptor = new AuthorizationManagerAfterMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(PostAuthorize.class), authorizationManager);
+		interceptor.setOrder(500);
+		return interceptor;
 	}
 
 	/**
@@ -89,6 +110,10 @@ public final class AuthorizationManagerAfterMethodInterceptor
 	@Override
 	public int getOrder() {
 		return this.order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	/**

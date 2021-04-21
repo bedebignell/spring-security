@@ -111,25 +111,25 @@ To recreate what adding `@EnableMethodSecurity` does by default, you would publi
 class MethodSecurityConfig {
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    MethodInterceptor preFilterAuthorizationMethodInterceptor() {
+    Advisor preFilterAuthorizationMethodInterceptor() {
         return new PreFilterAuthorizationMethodInterceptor();
     }
 
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    MethodInterceptor preAuthorizeAuthorizationMethodInterceptor() {
-    	return AuthorizationMethodInterceptors.preAuthorize();
+    Advisor preAuthorizeAuthorizationMethodInterceptor() {
+    	return AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
     }
 
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    MethodInterceptor postAuthorizeAuthorizationMethodInterceptor() {
-        return AuthorizationMethodInterceptors.postAuthorize();
+    Advisor postAuthorizeAuthorizationMethodInterceptor() {
+        return AuthorizationManagerAfterMethodInterceptor.postAuthorize();
     }
 
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    MethodInterceptor postFilterAuthorizationMethodInterceptor() {
+    Advisor postFilterAuthorizationMethodInterceptor() {
         return new PostFilterAuthorizationMethodInterceptor();
     }
 }
@@ -146,8 +146,8 @@ You may want to only support `@PreAuthorize` in your application, in which case 
 class MethodSecurityConfig {
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    MethodInterceptor preAuthorizeAuthorizationMethodInterceptor() {
-    	return AuthorizationMethodInterceptors.preAuthorize();
+    Advisor preAuthorize() {
+    	return AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
     }
 }
 ----
@@ -169,13 +169,13 @@ class MethodSecurityConfig {
         pattern.setPattern("org.mycompany.myapp.service.*");
         AuthorizationManager<MethodInvocation> rule = AuthorityAuthorizationManager.isAuthenticated();
         new AuthorizationManagerBeforeMethodInterceptor(
-        		AuthorizationMethodInterceptors.PRE_AUTHORIZE_ADVISOR_ORDER + 1, pattern, rule);
+        		AuthorizationAdvisorsOrder.PRE_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1, pattern, rule);
     }
 }
 ----
 
 [TIP]
-You can place your interceptor in between Spring Security method interceptors using the order constants specified in `AuthorizationAdvisors`.
+You can place your interceptor in between Spring Security method interceptors using the order constants specified in `AuthorizationInterceptorsOrder`.
 
 The same can be done for after-method authorization.
 After-method authorization is generally concerned with analysing the return value to verify access.
@@ -205,7 +205,7 @@ class MethodSecurityConfig {
     public MethodInterceptor methodSecurity(AuthorizationManager<MethodInvocationResult> rules) {
         AnnotationMethodMatcher pattern = new AnnotationMethodMatcher(MySecurityAnnotation.class);
         return new AuthorizationManagerAfterMethodInterceptor(
-        		AuthorizationMethodInterceptors.POST_AUTHORIZE_ADVISOR_ORDER + 1, pattern, rules);
+        		AuthorizationAdvisorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1, pattern, rules);
     }
 }
 ----

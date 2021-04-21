@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.authorization.method.AuthorizationAdvisors;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 
 /**
  * {@link Configuration} for enabling {@link Secured} Spring Security Method Security.
@@ -36,12 +36,10 @@ import org.springframework.security.authorization.method.AuthorizationAdvisors;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 final class SecuredMethodSecurityConfiguration {
 
-	public static final int SECURED_INTERCEPTOR_ORDER = 500;
-
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor securedAuthorizationMethodInterceptor() {
-		return AuthorizationAdvisors.secured();
+		return AuthorizationManagerBeforeMethodInterceptor.secured();
 	}
 
 }

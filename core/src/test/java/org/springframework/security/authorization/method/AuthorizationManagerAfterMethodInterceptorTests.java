@@ -41,14 +41,14 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 	public void instantiateWhenMethodMatcherNullThenException() {
 		AuthorizationManager<MethodInvocationResult> mockAuthorizationManager = mock(AuthorizationManager.class);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(200, null, mockAuthorizationManager))
+				.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(null, mockAuthorizationManager))
 				.withMessage("pointcut cannot be null");
 	}
 
 	@Test
 	public void instantiateWhenAuthorizationManagerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(200, mock(Pointcut.class), null))
+				.isThrownBy(() -> new AuthorizationManagerAfterMethodInterceptor(mock(Pointcut.class), null))
 				.withMessage("authorizationManager cannot be null");
 	}
 
@@ -58,7 +58,7 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		MethodInvocationResult result = new MethodInvocationResult(mockMethodInvocation, new Object());
 		given(mockMethodInvocation.proceed()).willReturn(result.getResult());
 		AuthorizationManager<MethodInvocationResult> mockAuthorizationManager = mock(AuthorizationManager.class);
-		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(200,
+		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
 				Pointcut.TRUE, mockAuthorizationManager);
 		Object returnedObject = advice.invoke(mockMethodInvocation);
 		assertThat(returnedObject).isEqualTo(result.getResult());

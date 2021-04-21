@@ -23,7 +23,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.authorization.method.AuthorizationAdvisors;
+import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
@@ -58,13 +59,13 @@ final class PrePostMethodSecurityConfiguration {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor preAuthorizeAuthorizationMethodInterceptor() {
-		return AuthorizationAdvisors.preAuthorize(this.preAuthorizeAuthorizationManager);
+		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(this.preAuthorizeAuthorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor postAuthorizeAuthorizationMethodInterceptor() {
-		return AuthorizationAdvisors.postAuthorize(this.postAuthorizeAuthorizationManager);
+		return AuthorizationManagerAfterMethodInterceptor.postAuthorize(this.postAuthorizeAuthorizationManager);
 	}
 
 	@Bean

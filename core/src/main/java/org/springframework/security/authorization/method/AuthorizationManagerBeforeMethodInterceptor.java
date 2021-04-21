@@ -18,6 +18,10 @@ package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -27,6 +31,8 @@ import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.core.Ordered;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -53,24 +59,86 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 		return authentication;
 	};
 
-	private final int order;
-
 	private final Pointcut pointcut;
 
 	private final AuthorizationManager<MethodInvocation> authorizationManager;
+
+	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
 
 	/**
 	 * Creates an instance.
 	 * @param pointcut the {@link Pointcut} to use
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 */
-	public AuthorizationManagerBeforeMethodInterceptor(int order, Pointcut pointcut,
+	public AuthorizationManagerBeforeMethodInterceptor(Pointcut pointcut,
 			AuthorizationManager<MethodInvocation> authorizationManager) {
 		Assert.notNull(pointcut, "pointcut cannot be null");
 		Assert.notNull(authorizationManager, "authorizationManager cannot be null");
-		this.order = order;
 		this.pointcut = pointcut;
 		this.authorizationManager = authorizationManager;
+	}
+
+	/**
+	 * Creates an interceptor for the {@link PreAuthorize} annotation
+	 * @return the interceptor
+	 */
+	public static AuthorizationManagerBeforeMethodInterceptor preAuthorize() {
+		return preAuthorize(new PreAuthorizeAuthorizationManager());
+	}
+
+	/**
+	 * Creates an interceptor for the {@link PreAuthorize} annotation
+	 * @param authorizationManager the {@link PreAuthorizeAuthorizationManager} to use
+	 * @return the interceptor
+	 */
+	public static AuthorizationManagerBeforeMethodInterceptor preAuthorize(
+			PreAuthorizeAuthorizationManager authorizationManager) {
+		AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(PreAuthorize.class), authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder());
+		return interceptor;
+	}
+
+	/**
+	 * Creates an interceptor for the {@link Secured} annotation
+	 * @return the interceptor
+	 */
+	public static AuthorizationManagerBeforeMethodInterceptor secured() {
+		return secured(new SecuredAuthorizationManager());
+	}
+
+	/**
+	 * Creates an interceptor for the {@link Secured} annotation
+	 * @param authorizationManager the {@link SecuredAuthorizationManager} to use
+	 * @return the interceptor
+	 */
+	public static AuthorizationManagerBeforeMethodInterceptor secured(
+			SecuredAuthorizationManager authorizationManager) {
+		AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(Secured.class), authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.SECURED.getOrder());
+		return interceptor;
+	}
+
+	/**
+	 * Creates an interceptor for the JSR-250 annotations
+	 * @return the interceptor
+	 */
+	public static AuthorizationManagerBeforeMethodInterceptor jsr250() {
+		return jsr250(new Jsr250AuthorizationManager());
+	}
+
+	/**
+	 * Creates an interceptor for the JSR-250 annotations
+	 * @param authorizationManager the {@link Jsr250AuthorizationManager} to use
+	 * @return the interceptor
+	 */
+	public static AuthorizationManagerBeforeMethodInterceptor jsr250(Jsr250AuthorizationManager authorizationManager) {
+		AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(RolesAllowed.class, DenyAll.class, PermitAll.class),
+				authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.JSR250.getOrder());
+		return interceptor;
 	}
 
 	/**
@@ -88,6 +156,10 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 	@Override
 	public int getOrder() {
 		return this.order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	/**

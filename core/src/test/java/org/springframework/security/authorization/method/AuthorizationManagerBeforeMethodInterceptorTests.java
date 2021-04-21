@@ -35,15 +35,16 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 
 	@Test
 	public void instantiateWhenMethodMatcherNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> new AuthorizationManagerBeforeMethodInterceptor(200, null, mock(AuthorizationManager.class)))
+		assertThatIllegalArgumentException()
+				.isThrownBy(
+						() -> new AuthorizationManagerBeforeMethodInterceptor(null, mock(AuthorizationManager.class)))
 				.withMessage("pointcut cannot be null");
 	}
 
 	@Test
 	public void instantiateWhenAuthorizationManagerNullThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new AuthorizationManagerBeforeMethodInterceptor(200, mock(Pointcut.class), null))
+				.isThrownBy(() -> new AuthorizationManagerBeforeMethodInterceptor(mock(Pointcut.class), null))
 				.withMessage("authorizationManager cannot be null");
 	}
 
@@ -51,7 +52,7 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 	public void beforeWhenMockAuthorizationManagerThenVerify() throws Throwable {
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(AuthorizationManager.class);
-		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(200,
+		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, mockAuthorizationManager);
 		advice.invoke(mockMethodInvocation);
 		verify(mockAuthorizationManager).verify(AuthorizationManagerBeforeMethodInterceptor.AUTHENTICATION_SUPPLIER,

@@ -63,7 +63,7 @@ public final class PreFilterAuthorizationMethodInterceptor
 
 	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
 
-	private final int order;
+	private int order = AuthorizationInterceptorsOrder.PRE_FILTER.getOrder();
 
 	private final Pointcut pointcut;
 
@@ -74,16 +74,6 @@ public final class PreFilterAuthorizationMethodInterceptor
 	 * parameters
 	 */
 	public PreFilterAuthorizationMethodInterceptor() {
-		this.order = AuthorizationAdvisors.PRE_FILTER_ADVISOR_ORDER;
-		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
-	}
-
-	/**
-	 * Creates a {@link PreFilterAuthorizationMethodInterceptor} using the provided
-	 * parameters
-	 */
-	public PreFilterAuthorizationMethodInterceptor(int order) {
-		this.order = order;
 		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
 	}
 
@@ -102,6 +92,10 @@ public final class PreFilterAuthorizationMethodInterceptor
 	@Override
 	public int getOrder() {
 		return this.order;
+	}
+
+	public void setOrder(int order) {
+		this.order = order;
 	}
 
 	/**

@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.BusinessService;
@@ -43,7 +42,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.method.AuthorizationAdvisors;
+import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.config.test.SpringTestRule;
 import org.springframework.security.core.Authentication;
@@ -287,6 +286,8 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(filtered).containsExactly("harold", "jonathan");
 	}
 
+	// gh-4003
+	// gh-4103
 	@WithMockUser
 	@Test
 	public void manyAnnotationsWhenUserThenFails() {
@@ -312,6 +313,21 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class)
 				.isThrownBy(() -> this.methodSecurityService.manyAnnotations(new ArrayList<>(names)));
+	}
+
+	// gh-3183
+	@WithMockUser(roles = { "USER", "ADMIN" })
+	public void repeatedAnnotationsWhenUserAndAdminThenPasses() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.repeatedAnnotations();
+	}
+
+	// gh-3183
+	@WithMockUser(roles = "ADMIN")
+	public void repeatedAnnotationsWhenOnlyAdminThenFails() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.repeatedAnnotations());
 	}
 
 	@EnableMethodSecurity
@@ -373,14 +389,12 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		@Order(99)
 		Advisor customBeforeAdvice() {
 			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
 			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
 			AuthorizationManager<MethodInvocation> authorizationManager = (a,
 					o) -> new AuthorizationDecision("bob".equals(a.get().getName()));
-			return new AuthorizationManagerBeforeMethodInterceptor(AuthorizationAdvisors.PRE_FILTER_ADVISOR_ORDER - 1,
-					pointcut, authorizationManager);
+			return new AuthorizationManagerBeforeMethodInterceptor(pointcut, authorizationManager);
 		}
 
 	}
@@ -401,7 +415,7 @@ public class PrePostMethodSecurityConfigurationTests {
 				throw new AccessDeniedException("Access Denied for User '" + auth.getName() + "'");
 			};
 			DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, interceptor);
-			advisor.setOrder(AuthorizationAdvisors.POST_FILTER_ADVISOR_ORDER + 1);
+			advisor.setOrder(AuthorizationInterceptorsOrder.POST_FILTER.getOrder() + 1);
 			return advisor;
 		}
 
